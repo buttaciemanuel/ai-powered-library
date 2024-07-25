@@ -1,0 +1,7 @@
+flask
+flask-mysqldb
+groq
+mysqlclient
+openai
+pandas
+python-dotenv
