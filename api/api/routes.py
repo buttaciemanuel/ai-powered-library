@@ -1,10 +1,13 @@
-from flask import Flask, jsonify, request
+from flask import Flask
+from flask_cors import CORS
 from flask_mysqldb import MySQL
 from groq import Groq
 import os
 
 ai = Groq(api_key = os.getenv('GROQ_API_KEY'))
 api = Flask(__name__)
+
+CORS(api)
 
 api.config['MYSQL_HOST'] = 'localhost'
 api.config['MYSQL_USER'] = 'root'

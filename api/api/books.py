@@ -29,7 +29,7 @@ def show():
         filters.append('LOWER(author) LIKE \"%{}%\"'.format(author.lower()))
 
     if publication_year is not None:
-        filters.append('publication_year = {}'.format(publication_year))
+        filters.append('publication_year={}'.format(publication_year))
 
     if price is not None:
         filters.append('CAST(price AS UNSIGNED)={}'.format(int(price)))
@@ -44,7 +44,10 @@ def show():
         command.append('WHERE {}'.format(' AND '.join(filters)))
 
     if sortby is not None:
-        command.append('ORDER BY {} {}'.format(sortby, 'ASC' if reverse != 1 else 'DESC'))
+        command.append('ORDER BY {} {}'.format(
+            'LOWER(TRIM({}))'.format(sortby) if sortby in [ 'title', 'author', 'genre', 'currency' ] else sortby, 
+            'ASC' if reverse != 1 else 'DESC'
+        ))
     
     if limit is not None:
         command.append('LIMIT {}'.format(limit))
