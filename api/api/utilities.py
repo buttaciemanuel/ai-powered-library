@@ -22,7 +22,7 @@ def validate_book(
             'error': 'Invalid publication_year field, it must be a positive integer'
         }), 400)
 
-    if price is not None and re.match(r'^\d+(?:\.\d+)$', price.strip()) is None:
+    if price is not None and re.match(r'^\d+(?:\.\d+)?$', price.strip()) is None:
         return False, (jsonify({
             'error': 'Invalid price field, it must be a positive floating point number'
         }), 400)

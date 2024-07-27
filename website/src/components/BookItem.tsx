@@ -8,10 +8,13 @@ import {
     Grid,
     Typography
 } from '@mui/material';
+import React from 'react';
 
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
+import AddBookDialog, { Book } from './AddBookDialog';
+import DeleteBookConfimationDialog from './DeleteBookConfimationDialog';
 
 interface BookItemProps {
     id: number;
@@ -21,10 +24,49 @@ interface BookItemProps {
     price: number;
     currency: string;
     genre: string;
+    editBook: (book: Book) => void;
+    deleteBook: (book: Book) => void;
 }
 
-export default function BookItem({ id, title, author, publicationYear, price, currency, genre }: BookItemProps) {
-    return <Card variant='outlined' sx={{ padding: 3, boxShadow: 'none', borderRadius: '8pt', marginBottom: 3 }}>
+export default function BookItem({ id, title, author, publicationYear, price, currency, genre, editBook, deleteBook }: BookItemProps) {
+    const [editBookDialogOpen, setEditBookDialogOpen] = React.useState<boolean>(false);
+    const [deleteBookDialogOpen, setDeleteBookDialogOpen] = React.useState<boolean>(false);
+
+    return <Card key={`${id}-card`} variant='outlined' sx={{ padding: 3, boxShadow: 'none', borderRadius: '8pt', marginBottom: 3 }}>
+        <AddBookDialog 
+            key={`${id}-edit-dialog`}
+            isOpen={editBookDialogOpen} 
+            handleClose={() => setEditBookDialogOpen(false)}
+            editableBook={{
+                id: id,
+                title: title,
+                author: author,
+                publication_year: publicationYear,
+                price: price,
+                currency: currency,
+                genre: genre
+            }}
+            saveBook={editBook}
+        />
+
+        <DeleteBookConfimationDialog 
+            key={`${id}-delete-dialog`}
+            isOpen={deleteBookDialogOpen}
+            handleClose={() => setDeleteBookDialogOpen(false)}
+            confirmDeletion={() => {
+                setDeleteBookDialogOpen(false);
+                deleteBook({
+                    id: id,
+                    title: title,
+                    author: author,
+                    publication_year: publicationYear,
+                    price: price,
+                    currency: currency,
+                    genre: genre
+                });
+            }}
+        />
+
         <CardContent>
             <Grid container direction='row' >
                 <Grid item sx={{ alignContent: 'center' }}>
@@ -36,11 +78,27 @@ export default function BookItem({ id, title, author, publicationYear, price, cu
                 <Box sx={{ flexGrow: 1 }} />
 
                 <Grid item sx={{ paddingRight: 3 }}>
-                    <Button startIcon={<EditIcon />} size='medium' color='primary' disableElevation>Edit</Button>
+                    <Button
+                        startIcon={<EditIcon />}
+                        size='medium'
+                        color='primary'
+                        disableElevation
+                        onClick={() => setEditBookDialogOpen(true)}
+                    >
+                        Edit
+                    </Button>
                 </Grid>
 
                 <Grid item>
-                    <Button startIcon={<DeleteForeverIcon />} size='medium' color='error' disableElevation>Delete</Button>
+                    <Button 
+                        startIcon={<DeleteForeverIcon />} 
+                        size='medium' 
+                        color='error' 
+                        disableElevation
+                        onClick={() => setDeleteBookDialogOpen(true)}
+                    >
+                        Delete
+                    </Button>
                 </Grid>
 
             </Grid>

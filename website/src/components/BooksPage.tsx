@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import {
     Autocomplete,
     Box,
@@ -19,15 +19,15 @@ import CancelRoundedIcon from '@mui/icons-material/Cancel';
 import SearchIcon from '@mui/icons-material/Search';
 import SortIcon from '@mui/icons-material/Sort';
 import BookItem from './BookItem';
+import AddBookDialog, { Book } from './AddBookDialog';
+import MessageToUserSnackbar, {
+    MessageToUserSnackbarState,
+    MessageToUserSnackbarType
+} from './MesageToUserSnackbar';
+import MultiplePagesCollection from './MultiplePagesCollection';
 
-interface Book {
-    id: number;
-    title: string;
-    author: string;
-    publication_year: number;
-    price: number;
-    currency: string;
-    genre: string;
+interface ResponseError {
+    error: string;
 }
 
 const api = axios.create({
@@ -35,6 +35,12 @@ const api = axios.create({
 });
 
 function BooksPage() {
+    const [messageSnackbarState, setMessageSnackbarState] = React.useState<MessageToUserSnackbarState>({
+        isOpen: false,
+        messageType: undefined,
+        messageContent: ''
+    });
+    const [addBookDialogOpen, setAddBookDialogOpen] = React.useState<boolean>(false);
     const [filterTitle, setFilterTitle] = React.useState<string>('');
     const [filterAuthor, setFilterAuthor] = React.useState<string>('');
     const [filterGenre, setFilterGenre] = React.useState<string>('');
@@ -42,13 +48,10 @@ function BooksPage() {
     const [countLimit, setCountLimit] = React.useState<string>('');
     const [sortBy, setSortBy] = React.useState<string>('');
     const [reversed, setReversed] = React.useState<boolean>(false);
+    const [currentPage, setCurrentPage] = React.useState<number>(0);
     const [books, setBooks] = React.useState<Book[]>([]);
 
-    React.useEffect(() => {
-        fetchBooks();
-    }, [ filterTitle, filterAuthor, filterGenre, filterPublicationYear, countLimit, sortBy, reversed ]);
-
-    const fetchBooks = () => {
+    const fetchBooks = React.useCallback(() => {
         let requestParameters = []
 
         if (filterTitle != null && filterTitle.trim().length > 0) {
@@ -83,8 +86,94 @@ function BooksPage() {
         }
 
         api.get(`/books/show?${requestParameters.join('&')}`).then((response) => {
-            console.log(response.data)
+            console.log(response.data);
+            setCurrentPage(0);
             setBooks(response.data);
+        }).catch((error) => {
+            showNotification(MessageToUserSnackbarType.Error, 'An error occurred while requesting the catalog of books');
+        });
+    }, [filterTitle, filterAuthor, filterGenre, filterPublicationYear, countLimit, sortBy, reversed]);
+
+    React.useEffect(() => {
+        fetchBooks();
+    }, []);
+
+    React.useEffect(() => {
+        const delayDebounceFn = setTimeout(fetchBooks, 250);
+        return () => clearTimeout(delayDebounceFn);
+    }, [fetchBooks, filterTitle, filterAuthor, filterGenre, filterPublicationYear, countLimit, sortBy, reversed]);
+
+    const addBook = React.useCallback((book: Book) => {
+        let requestParameters = [];
+
+        let key: keyof Book;
+
+        for (key in book) {
+            requestParameters.push(`${key}=${book[key]}`)
+        }
+
+        api.post(`/books/add?${requestParameters.join('&')}`).then(() => {
+            showNotification(MessageToUserSnackbarType.Success, 'Your book has been added to the collection');
+            fetchBooks();
+        }).catch((error: AxiosError) => {
+            if (error.response) {
+                showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
+            }
+            else {
+                showNotification(MessageToUserSnackbarType.Error, 'An error occurred while trying to add the book to the collection');
+            }
+        });
+    }, [fetchBooks]);
+
+    const editBook = React.useCallback((book: Book) => {
+        let requestParameters = [];
+
+        let key: keyof Book;
+
+        for (key in book) {
+            requestParameters.push(`${key}=${book[key]}`)
+        }
+
+        api.post(`/books/edit/${book.id}?${requestParameters.join('&')}`).then(() => {
+            showNotification(MessageToUserSnackbarType.Success, 'Your book has been successfully updated');
+            fetchBooks();
+        }).catch((error: AxiosError) => {
+            if (error.response) {
+                showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
+            }
+            else {
+                showNotification(MessageToUserSnackbarType.Error, 'An error occurred while trying to edit the book');
+            }
+        });
+    }, [fetchBooks]);
+
+    const deleteBook = React.useCallback((book: Book) => {
+        api.delete(`/books/delete/${book.id}`).then(() => {
+            showNotification(MessageToUserSnackbarType.Success, 'Your book has been successfully deleted from the collection');
+            fetchBooks();
+        }).catch((error: AxiosError) => {
+            if (error.response) {
+                showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
+            }
+            else {
+                showNotification(MessageToUserSnackbarType.Error, 'An error occurred while trying to delete the book from the collection');
+            }
+        });
+    }, [fetchBooks]);
+
+    const showNotification = (messageType: MessageToUserSnackbarType, messageContent: string) => {
+        setMessageSnackbarState({
+            isOpen: true,
+            messageType: messageType,
+            messageContent: messageContent
+        });
+    };
+
+    const clearNotification = () => {
+        setMessageSnackbarState({
+            isOpen: false,
+            messageType: messageSnackbarState.messageType,
+            messageContent: messageSnackbarState.messageContent
         });
     };
 
@@ -113,7 +202,7 @@ function BooksPage() {
                 ),
                 endAdornment: true && (
                     <IconButton
-                        onClick={() => { setFilterTitle(''); } }
+                        onClick={() => { setFilterTitle(''); }}
                     ><CancelRoundedIcon /></IconButton>
                 )
             }}
@@ -153,7 +242,7 @@ function BooksPage() {
                     ),
                     endAdornment: true && (
                         <IconButton
-                        onClick={() => { setFilterAuthor(''); } }
+                            onClick={() => { setFilterAuthor(''); }}
                         ><CancelRoundedIcon /></IconButton>
                     )
                 }}
@@ -185,7 +274,7 @@ function BooksPage() {
                     ),
                     endAdornment: true && (
                         <IconButton
-                        onClick={() => { setFilterGenre(''); } }
+                            onClick={() => { setFilterGenre(''); }}
                         ><CancelRoundedIcon /></IconButton>
                     )
                 }}
@@ -319,23 +408,53 @@ function BooksPage() {
 
             <Box sx={{ flexGrow: 1 }} />
 
-            <Button variant='contained' size='large' disableElevation startIcon={<AddIcon />} sx={{ marginLeft: 3, width: '15vw', borderRadius: '8pt' }}>
+            <Button
+                variant='contained'
+                size='large'
+                disableElevation
+                startIcon={<AddIcon />}
+                sx={{ marginLeft: 3, width: '15vw', borderRadius: '8pt' }}
+                onClick={() => setAddBookDialogOpen(true)}
+            >
                 Add new book
             </Button>
         </Box>
 
-        {books.map(function(book) {
-            return <BookItem 
-                id={book.id} 
-                title={book.title} 
-                author={book.author} 
+        <AddBookDialog
+            key={'add-new-book-dialog'}
+            isOpen={addBookDialogOpen}
+            handleClose={() => setAddBookDialogOpen(false)}
+            saveBook={addBook}
+        />
+
+        {/* {books.map(function (book) {
+            return <BookItem
+                id={book.id}
+                title={book.title}
+                author={book.author}
                 publicationYear={book.publication_year}
                 price={book.price}
                 currency={book.currency}
                 genre={book.genre}
+                editBook={editBook}
+                deleteBook={deleteBook}
             />;
-        })}
+        })} */}
 
+        <MultiplePagesCollection
+            currentPage={currentPage}
+            changePage={setCurrentPage}
+            books={books} 
+            editBook={editBook}
+            deleteBook={deleteBook} 
+        />
+
+        <MessageToUserSnackbar
+            isOpen={messageSnackbarState.isOpen}
+            handleClose={clearNotification}
+            messageType={messageSnackbarState.messageType}
+            messageContent={messageSnackbarState.messageContent}
+        />
     </Container>;
 }
 
