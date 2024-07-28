@@ -15,6 +15,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
 import AddBookDialog, { Book } from './AddBookDialog';
 import DeleteBookConfimationDialog from './DeleteBookConfimationDialog';
+import BookSummaryDialog, { BookSummaryInformation } from './BookSummaryDialog';
 
 interface BookItemProps {
     id: number;
@@ -26,16 +27,19 @@ interface BookItemProps {
     genre: string;
     editBook: (book: Book) => void;
     deleteBook: (book: Book) => void;
+    summarizeBook: (book: Book, onSuccess: (summary: BookSummaryInformation) => void) => void;
 }
 
-export default function BookItem({ id, title, author, publicationYear, price, currency, genre, editBook, deleteBook }: BookItemProps) {
+export default function BookItem({ id, title, author, publicationYear, price, currency, genre, editBook, deleteBook, summarizeBook }: BookItemProps) {
     const [editBookDialogOpen, setEditBookDialogOpen] = React.useState<boolean>(false);
     const [deleteBookDialogOpen, setDeleteBookDialogOpen] = React.useState<boolean>(false);
+    const [summarizeBookDialogOpen, setSummarizeBookDialogOpen] = React.useState<boolean>(false);
+    const [bookSummary, setBookSummary] = React.useState<BookSummaryInformation | undefined>(undefined);
 
     return <Card key={`${id}-card`} variant='outlined' sx={{ padding: 3, boxShadow: 'none', borderRadius: '8pt', marginBottom: 3 }}>
-        <AddBookDialog 
+        <AddBookDialog
             key={`${id}-edit-dialog`}
-            isOpen={editBookDialogOpen} 
+            isOpen={editBookDialogOpen}
             handleClose={() => setEditBookDialogOpen(false)}
             editableBook={{
                 id: id,
@@ -49,7 +53,7 @@ export default function BookItem({ id, title, author, publicationYear, price, cu
             saveBook={editBook}
         />
 
-        <DeleteBookConfimationDialog 
+        <DeleteBookConfimationDialog
             key={`${id}-delete-dialog`}
             isOpen={deleteBookDialogOpen}
             handleClose={() => setDeleteBookDialogOpen(false)}
@@ -64,6 +68,22 @@ export default function BookItem({ id, title, author, publicationYear, price, cu
                     currency: currency,
                     genre: genre
                 });
+            }}
+        />
+
+        <BookSummaryDialog
+            key={`${id}-summary-dialog`}
+            isOpen={summarizeBookDialogOpen}
+            handleClose={() => setSummarizeBookDialogOpen(false)}
+            summarizeBook={summarizeBook}
+            book={{
+                id: id,
+                title: title,
+                author: author,
+                publication_year: publicationYear,
+                price: price,
+                currency: currency,
+                genre: genre
             }}
         />
 
@@ -90,10 +110,10 @@ export default function BookItem({ id, title, author, publicationYear, price, cu
                 </Grid>
 
                 <Grid item>
-                    <Button 
-                        startIcon={<DeleteForeverIcon />} 
-                        size='medium' 
-                        color='error' 
+                    <Button
+                        startIcon={<DeleteForeverIcon />}
+                        size='medium'
+                        color='error'
                         disableElevation
                         onClick={() => setDeleteBookDialogOpen(true)}
                     >
@@ -142,7 +162,15 @@ export default function BookItem({ id, title, author, publicationYear, price, cu
         <CardActions>
             <Grid container direction='row'>
                 <Grid item>
-                    <Button sx={{ textTransform: 'none' }} startIcon={<AutoAwesomeIcon />} size='medium' color='secondary'>Is this for you?</Button>
+                    <Button
+                        sx={{ textTransform: 'none' }}
+                        startIcon={<AutoAwesomeIcon />}
+                        size='medium'
+                        color='secondary'
+                        onClick={() => setSummarizeBookDialogOpen(true)}
+                    >
+                        Is this for you?
+                    </Button>
                 </Grid>
             </Grid>
         </CardActions>

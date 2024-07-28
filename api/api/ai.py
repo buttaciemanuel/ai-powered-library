@@ -85,7 +85,7 @@ def recommendation(id: int):
             },
             { 
                 'role': 'user', 
-                'content': 'Tell me how much the book {} from {} of genre {} aligns with me in percentage and briefly explain why in prose. Do not provide additional recommendations.'.format(
+                'content': 'Tell me how much the book {} from {} of genre {} aligns with me in percentage and briefly explain why in prose. Do not provide additional recommendations and do not ask additional questions.'.format(
                     title,
                     author,
                     genre

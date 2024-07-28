@@ -1,6 +1,6 @@
 import {
     Alert,
-    Grow,
+    Slide,
     Snackbar
 } from '@mui/material';
 
@@ -28,8 +28,8 @@ export default function MessageToUserSnackbar({ isOpen, handleClose, messageType
     return <Snackbar
         open={isOpen}
         onClose={handleClose}
-        TransitionComponent={Grow}
-        key={Grow.name}
+        TransitionComponent={Slide}
+        key={Slide.name}
         autoHideDuration={3000}
     >
         <Alert severity={messageType} onClose={handleClose}>

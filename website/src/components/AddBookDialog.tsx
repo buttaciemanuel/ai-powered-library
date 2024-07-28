@@ -5,7 +5,7 @@ import {
     Container,
     Dialog,
     IconButton,
-    Grow,
+    Slide,
     TextField,
     Typography,
     Toolbar
@@ -47,7 +47,7 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
         fullScreen
         open={isOpen}
         onClose={handleClose}
-        TransitionComponent={Grow}
+        TransitionComponent={Slide}
     >
         <Container sx={{ backgroundColor: 'none' }}>
             <Toolbar sx={{ backgroundColor: 'none', marginBottom: 3, paddingY: 5, paddingX: '0pt !important' }}>
@@ -101,10 +101,10 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                 fullWidth
                 autoComplete='off'
                 InputProps={{
-                    style: { backgroundColor: 'none', border: 'none', fontSize: '4rem', fontWeight: 700 },
+                    style: { backgroundColor: 'none', border: 'none', fontSize: '3rem', fontWeight: 700 },
                     disableUnderline: true,
                 }}
-                InputLabelProps={{ shrink: false, style: { fontSize: '6rem' } }}
+                InputLabelProps={{ shrink: false, style: { fontSize: '3rem' } }}
                 sx={{
                     '& .MuiOutlinedInput-root': {
                         backgroundColor: 'none'
@@ -126,10 +126,10 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                 fullWidth
                 autoComplete='off'
                 InputProps={{
-                    style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: '2rem', fontWeight: 300 },
+                    style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: '1.5rem', fontWeight: 300 },
                     disableUnderline: true,
                 }}
-                InputLabelProps={{ shrink: false, style: { fontSize: '2rem' } }}
+                InputLabelProps={{ shrink: false, style: { fontSize: '1.5rem' } }}
                 sx={{
                     '& .MuiOutlinedInput-root': {
                         backgroundColor: 'none'
@@ -151,10 +151,10 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                 fullWidth
                 autoComplete='off'
                 InputProps={{
-                    style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: '2rem', fontWeight: 300 },
+                    style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: '1.5rem', fontWeight: 300 },
                     disableUnderline: true,
                 }}
-                InputLabelProps={{ shrink: false, style: { fontSize: '2rem' } }}
+                InputLabelProps={{ shrink: false, style: { fontSize: '1.5rem' } }}
                 sx={{
                     '& .MuiOutlinedInput-root': {
                         backgroundColor: 'none'
@@ -184,7 +184,7 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                         InputProps={{
                             ...params.InputProps,
                             disableUnderline: true,
-                            style: { fontSize: '2rem', fontWeight: 300 }
+                            style: { fontSize: '1.5rem', fontWeight: 300 }
                         }}
                         sx={{
                             '& .MuiOutlinedInput-root': {
@@ -216,10 +216,10 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                     fullWidth
                     autoComplete='off'
                     InputProps={{
-                        style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: '2rem', fontWeight: 300 },
+                        style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: '1.5rem', fontWeight: 300 },
                         disableUnderline: true,
                     }}
-                    InputLabelProps={{ shrink: false, style: { fontSize: '2rem' } }}
+                    InputLabelProps={{ shrink: false, style: { fontSize: '1.5rem' } }}
                     sx={{
                         '& .MuiOutlinedInput-root': {
                             backgroundColor: 'none'
@@ -249,7 +249,7 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                             variant='standard'
                             InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: '2rem', fontWeight: 300 },
+                                style: { fontSize: '1.5rem', fontWeight: 300 },
                                 disableUnderline: true
                             }}
                             sx={{

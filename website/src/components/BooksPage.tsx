@@ -13,18 +13,27 @@ import {
     Typography
 } from '@mui/material';
 import React from 'react';
+import Cookies from 'js-cookie';
 
 import AddIcon from '@mui/icons-material/Add';
 import CancelRoundedIcon from '@mui/icons-material/Cancel';
 import SearchIcon from '@mui/icons-material/Search';
 import SortIcon from '@mui/icons-material/Sort';
-import BookItem from './BookItem';
 import AddBookDialog, { Book } from './AddBookDialog';
 import MessageToUserSnackbar, {
     MessageToUserSnackbarState,
     MessageToUserSnackbarType
 } from './MesageToUserSnackbar';
 import MultiplePagesCollection from './MultiplePagesCollection';
+import TellMeMoreAboutYourselfDialog, { UserRecommendationInformation } from './TellMeMoreAboutYourselfDialog';
+import CookieDialog from './CookieDialog';
+import { BookSummaryInformation } from './BookSummaryDialog';
+
+enum UserRecommendationInformationCookieKeys {
+    ReadingGoal = 'user.readingGoal',
+    ReadingGoalDescription = 'user.readingGoalDescription',
+    ReadingMood = 'user.readingMood',
+}
 
 interface ResponseError {
     error: string;
@@ -35,12 +44,17 @@ const api = axios.create({
 });
 
 function BooksPage() {
+    const [cookieDialogOpen, setCookieDialogOpen] = React.useState<boolean>(false);
+    const [tellMeDialogOpen, setTellMeDialogOpen] = React.useState<boolean>(false);
+
+    const [addBookDialogOpen, setAddBookDialogOpen] = React.useState<boolean>(false);
+
     const [messageSnackbarState, setMessageSnackbarState] = React.useState<MessageToUserSnackbarState>({
         isOpen: false,
         messageType: undefined,
         messageContent: ''
     });
-    const [addBookDialogOpen, setAddBookDialogOpen] = React.useState<boolean>(false);
+
     const [filterTitle, setFilterTitle] = React.useState<string>('');
     const [filterAuthor, setFilterAuthor] = React.useState<string>('');
     const [filterGenre, setFilterGenre] = React.useState<string>('');
@@ -49,7 +63,7 @@ function BooksPage() {
     const [sortBy, setSortBy] = React.useState<string>('');
     const [reversed, setReversed] = React.useState<boolean>(false);
     const [currentPage, setCurrentPage] = React.useState<number>(0);
-    const [books, setBooks] = React.useState<Book[]>([]);
+    const [books, setBooks] = React.useState<Book[] | undefined>(undefined);
 
     const fetchBooks = React.useCallback(() => {
         let requestParameters = []
@@ -71,7 +85,7 @@ function BooksPage() {
         }
 
         if (countLimit.length === 0) {
-            requestParameters.push(`count=10`)
+            requestParameters.push(`count=100`)
         }
         else if (countLimit !== 'All') {
             requestParameters.push(`count=${countLimit}`)
@@ -93,6 +107,12 @@ function BooksPage() {
             showNotification(MessageToUserSnackbarType.Error, 'An error occurred while requesting the catalog of books');
         });
     }, [filterTitle, filterAuthor, filterGenre, filterPublicationYear, countLimit, sortBy, reversed]);
+
+    React.useEffect(() => {
+        if (Cookies.get(UserRecommendationInformationCookieKeys.ReadingGoal) === undefined) {
+            setCookieDialogOpen(true);
+        }
+    }, []);
 
     React.useEffect(() => {
         fetchBooks();
@@ -161,6 +181,45 @@ function BooksPage() {
         });
     }, [fetchBooks]);
 
+    const summarizeBook = React.useCallback((book: Book, onSuccess: (summary: BookSummaryInformation) => void) => {
+        let requestParameters: string[] = [];
+
+        if (Cookies.get(UserRecommendationInformationCookieKeys.ReadingGoal) !== undefined) {
+            requestParameters.push(`goal=${Cookies.get(UserRecommendationInformationCookieKeys.ReadingGoal)}`);
+        }
+
+        if (Cookies.get(UserRecommendationInformationCookieKeys.ReadingGoalDescription) !== undefined) {
+            requestParameters.push(`description=${Cookies.get(UserRecommendationInformationCookieKeys.ReadingGoalDescription)}`);
+        }
+
+        if (Cookies.get(UserRecommendationInformationCookieKeys.ReadingMood) !== undefined) {
+            requestParameters.push(`mood=${Cookies.get(UserRecommendationInformationCookieKeys.ReadingMood)}`);
+        }
+        
+        api.get(`/ai/summary/${book.id}`).then((summaryResponse) => {
+            api.get(`/ai/recommendation/${book.id}?${requestParameters.join('&')}`).then((recommendationResponse) => {
+                onSuccess({
+                    summary: summaryResponse.data['summary'], 
+                    recommendation: recommendationResponse.data['recommendation']
+                });
+            }).catch((error: AxiosError) => {
+                if (error.response) {
+                    showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
+                }
+                else {
+                    showNotification(MessageToUserSnackbarType.Error, 'An error occurred while trying to generate the recommendation for the selected book');
+                }
+            });
+        }).catch((error: AxiosError) => {
+            if (error.response) {
+                showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
+            }
+            else {
+                showNotification(MessageToUserSnackbarType.Error, 'An error occurred while trying to generate the summary for the selected book');
+            }
+        });
+    }, [fetchBooks]);
+
     const showNotification = (messageType: MessageToUserSnackbarType, messageContent: string) => {
         setMessageSnackbarState({
             isOpen: true,
@@ -176,6 +235,17 @@ function BooksPage() {
             messageContent: messageSnackbarState.messageContent
         });
     };
+
+    const saveUserInformationCookie = React.useCallback((info: UserRecommendationInformation) => {
+        const options = { expires: 7 };
+        Cookies.set(UserRecommendationInformationCookieKeys.ReadingGoal, info.readingGoal, options);
+        Cookies.set(UserRecommendationInformationCookieKeys.ReadingGoalDescription, info.readingGoalDescription, options);
+        Cookies.set(UserRecommendationInformationCookieKeys.ReadingMood, info.readingMood, options);
+    }, []);
+    // FIXME: remove in final
+    // Cookies.remove(UserRecommendationInformationCookieKeys.ReadingGoal);
+    // Cookies.remove(UserRecommendationInformationCookieKeys.ReadingGoalDescription);
+    // Cookies.remove(UserRecommendationInformationCookieKeys.ReadingMood);
 
     return <Container sx={{ paddingTop: '5vh', backgroundColor: 'none' }}>
         <Typography sx={{ backgroundColor: 'none' }} variant='h1' fontWeight={700} paddingBottom={2}>
@@ -403,7 +473,11 @@ function BooksPage() {
             />
 
             <FormGroup>
-                <FormControlLabel control={<Switch />} label='Reverse' onChange={(e) => setReversed((e.target as HTMLInputElement).checked)} />
+                <FormControlLabel 
+                    control={<Switch disabled={sortBy.trim().length === 0} />} 
+                    label='Reverse' 
+                    onChange={(e) => setReversed((e.target as HTMLInputElement).checked)} 
+                />
             </FormGroup>
 
             <Box sx={{ flexGrow: 1 }} />
@@ -427,26 +501,26 @@ function BooksPage() {
             saveBook={addBook}
         />
 
-        {/* {books.map(function (book) {
-            return <BookItem
-                id={book.id}
-                title={book.title}
-                author={book.author}
-                publicationYear={book.publication_year}
-                price={book.price}
-                currency={book.currency}
-                genre={book.genre}
-                editBook={editBook}
-                deleteBook={deleteBook}
-            />;
-        })} */}
+        <TellMeMoreAboutYourselfDialog
+            key={'tell-me-dialog'}
+            isOpen={tellMeDialogOpen}
+            saveInfo={(info: UserRecommendationInformation) => {
+                setTellMeDialogOpen(false);
+                saveUserInformationCookie(info);
+                showNotification(MessageToUserSnackbarType.Info, 'Your reading goal has been updated as cookie information expiring in 7 days');
+            }}
+            handleClose={() => {
+                setTellMeDialogOpen(false);
+            }}
+        />
 
         <MultiplePagesCollection
             currentPage={currentPage}
             changePage={setCurrentPage}
-            books={books} 
+            books={books}
             editBook={editBook}
-            deleteBook={deleteBook} 
+            deleteBook={deleteBook}
+            summarizeBook={summarizeBook}
         />
 
         <MessageToUserSnackbar
@@ -454,6 +528,16 @@ function BooksPage() {
             handleClose={clearNotification}
             messageType={messageSnackbarState.messageType}
             messageContent={messageSnackbarState.messageContent}
+        />
+
+        <CookieDialog
+            isOpen={cookieDialogOpen}
+            handleClose={() => setCookieDialogOpen(false)}
+            acceptCookies={() => {
+                setCookieDialogOpen(false);
+                setTellMeDialogOpen(true);
+            }}
+            refuseCookies={() => setCookieDialogOpen(false)}
         />
     </Container>;
 }

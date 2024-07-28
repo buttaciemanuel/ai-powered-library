@@ -8,7 +8,6 @@ import {
     DialogTitle,
     Grow
 } from '@mui/material';
-
 import React from 'react';
 
 export interface Book {
@@ -37,16 +36,21 @@ export default function DeleteBookConfimationDialog({ key, isOpen, handleClose, 
         TransitionComponent={Grow}
     >
         <Box sx={{ padding: 3 }}>
-        <DialogTitle sx={{ fontWeight: 700, color: 'black' }}>Delete book from catalog</DialogTitle>
-        <DialogContent>
-            <DialogContentText sx={{ fontWeight: 300, color: 'black' }}>
-                Are you sure you want to delete the selected book from the collection? This is an irreversible action.
-            </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={confirmDeletion}>Confirm</Button>
-        </DialogActions>
+            <DialogTitle sx={{ fontWeight: 700, color: 'black' }}>Delete book from catalog</DialogTitle>
+            <DialogContent>
+                <DialogContentText sx={{ fontWeight: 300, color: 'black' }}>
+                    Are you sure you want to delete the selected book from the collection? This is an irreversible action.
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleClose}>
+                    Cancel
+                </Button>
+
+                <Button onClick={confirmDeletion} color='error'>
+                    Delete this book
+                </Button>
+            </DialogActions>
         </Box>
     </Dialog>;
 }
