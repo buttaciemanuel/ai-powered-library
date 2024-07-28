@@ -55,7 +55,6 @@ export default function MultiplePagesCollection({ currentPage, changePage, books
                     startIcon={<ArrowBackIosIcon />}
                     size='large'
                     color='primary'
-
                     onClick={() => { changePage(Math.max(0, currentPage - 1)); }}
                 >
                     {currentPage === 0 ? '' : 1 + Math.max(0, currentPage - 1)}
@@ -66,7 +65,6 @@ export default function MultiplePagesCollection({ currentPage, changePage, books
                     endIcon={<ArrowForwardIosIcon />}
                     size='large'
                     color='primary'
-
                     onClick={() => { changePage(Math.min(Math.ceil(books.length / itemsPerPage) - 1, currentPage + 1)); }}
                 >
                     {currentPage === Math.ceil(books.length / itemsPerPage) - 1 ? '' : 1 + Math.min(Math.ceil(books.length / itemsPerPage) - 1, currentPage + 1)}

@@ -28,6 +28,8 @@ with api.app_context():
 
     cursor.execute('DROP TABLE IF EXISTS users;')
 
+    cursor.execute('DROP TABLE IF EXISTS sessions;')
+
     cursor.execute('''CREATE TABLE books(
         id INT AUTO_INCREMENT, 
         title VARCHAR(255),
@@ -41,9 +43,15 @@ with api.app_context():
 
     cursor.execute('''CREATE TABLE users(
         email VARCHAR(255),
-        username VARCHAR(255),
         password VARCHAR(255),
         PRIMARY KEY (email)
+    );''')
+
+    cursor.execute('''CREATE TABLE sessions(
+        email VARCHAR(255),
+        token VARCHAR(255),
+        creation_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (email, token)
     );''')
 
     for index, item in dataset.iterrows():

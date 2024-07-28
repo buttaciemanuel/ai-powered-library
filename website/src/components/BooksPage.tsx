@@ -4,6 +4,7 @@ import {
     Box,
     Button,
     Container,
+    Fab,
     FormControlLabel,
     FormGroup,
     IconButton,
@@ -20,14 +21,15 @@ import CancelRoundedIcon from '@mui/icons-material/Cancel';
 import SearchIcon from '@mui/icons-material/Search';
 import SortIcon from '@mui/icons-material/Sort';
 import AddBookDialog, { Book } from './AddBookDialog';
-import MessageToUserSnackbar, {
-    MessageToUserSnackbarState,
-    MessageToUserSnackbarType
-} from './MesageToUserSnackbar';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import MessageToUserSnackbar, { MessageToUserSnackbarState, MessageToUserSnackbarType } from './MessageToUserSnackbar';
 import MultiplePagesCollection from './MultiplePagesCollection';
 import TellMeMoreAboutYourselfDialog, { UserRecommendationInformation } from './TellMeMoreAboutYourselfDialog';
 import CookieDialog from './CookieDialog';
 import { BookSummaryInformation } from './BookSummaryDialog';
+import UserAuthenticateDialog, { UserAuthenticationSessionKeys } from './UserAuthenticateDialog';
+import UserAccountDialog from './UserAccountDialog';
 
 enum UserRecommendationInformationCookieKeys {
     ReadingGoal = 'user.readingGoal',
@@ -44,6 +46,10 @@ const api = axios.create({
 });
 
 function BooksPage() {
+    const [signInPageOpen, setSignInPageOpen] = React.useState<boolean>(false);
+
+    const [userAccountDialogOpen, setUserAccountDialogOpen] = React.useState<boolean>(false);
+
     const [cookieDialogOpen, setCookieDialogOpen] = React.useState<boolean>(false);
     const [tellMeDialogOpen, setTellMeDialogOpen] = React.useState<boolean>(false);
 
@@ -105,6 +111,7 @@ function BooksPage() {
             setBooks(response.data);
         }).catch((error) => {
             showNotification(MessageToUserSnackbarType.Error, 'An error occurred while requesting the catalog of books');
+            setBooks([]);
         });
     }, [filterTitle, filterAuthor, filterGenre, filterPublicationYear, countLimit, sortBy, reversed]);
 
@@ -195,11 +202,11 @@ function BooksPage() {
         if (Cookies.get(UserRecommendationInformationCookieKeys.ReadingMood) !== undefined) {
             requestParameters.push(`mood=${Cookies.get(UserRecommendationInformationCookieKeys.ReadingMood)}`);
         }
-        
+
         api.get(`/ai/summary/${book.id}`).then((summaryResponse) => {
             api.get(`/ai/recommendation/${book.id}?${requestParameters.join('&')}`).then((recommendationResponse) => {
                 onSuccess({
-                    summary: summaryResponse.data['summary'], 
+                    summary: summaryResponse.data['summary'],
                     recommendation: recommendationResponse.data['recommendation']
                 });
             }).catch((error: AxiosError) => {
@@ -246,6 +253,66 @@ function BooksPage() {
     // Cookies.remove(UserRecommendationInformationCookieKeys.ReadingGoal);
     // Cookies.remove(UserRecommendationInformationCookieKeys.ReadingGoalDescription);
     // Cookies.remove(UserRecommendationInformationCookieKeys.ReadingMood);
+
+    const signIn = React.useCallback((email: string, password: string, onResult: () => void) => {
+        api.post(`/auth/signin?email=${email}&password=${password}`).then((response) => {
+            onResult();
+            Cookies.set(UserAuthenticationSessionKeys.Email, email);
+            Cookies.set(UserAuthenticationSessionKeys.Token, response.data[UserAuthenticationSessionKeys.Token]);
+            showNotification(MessageToUserSnackbarType.Success, `You have successfully signed in as ${email}`);
+            fetchBooks();
+        }).catch((error: AxiosError) => {
+            onResult();
+            Cookies.remove(UserAuthenticationSessionKeys.Email);
+            Cookies.remove(UserAuthenticationSessionKeys.Token);
+            if (error.response) {
+                showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
+            }
+            else {
+                showNotification(MessageToUserSnackbarType.Error, 'An error occurred while trying to sign in');
+            }
+        });
+    }, []);
+
+    const signUp = React.useCallback((email: string, password: string, onResult: () => void) => {
+        api.post(`/auth/signup?email=${email}&password=${password}`).then((response) => {
+            onResult();
+            Cookies.set(UserAuthenticationSessionKeys.Email, email);
+            Cookies.set(UserAuthenticationSessionKeys.Token, response.data[UserAuthenticationSessionKeys.Token]);
+            showNotification(MessageToUserSnackbarType.Success, `You have successfully signed up as ${email}`);
+            fetchBooks();
+        }).catch((error: AxiosError) => {
+            onResult();
+            Cookies.remove(UserAuthenticationSessionKeys.Email);
+            Cookies.remove(UserAuthenticationSessionKeys.Token);
+            if (error.response) {
+                showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
+            }
+            else {
+                showNotification(MessageToUserSnackbarType.Error, 'An error occurred while trying to sign uè');
+            }
+        });
+    }, []);
+
+    const signOut = React.useCallback((onResult: () => void) => {
+        api.post(`/auth/signout?email=${Cookies.get(UserAuthenticationSessionKeys.Email)}&token=${Cookies.get(UserAuthenticationSessionKeys.Token)}`).then(() => {
+            onResult();
+            Cookies.remove(UserAuthenticationSessionKeys.Email);
+            Cookies.remove(UserAuthenticationSessionKeys.Token);
+            showNotification(MessageToUserSnackbarType.Success, 'You have successfully signed out');
+            fetchBooks();
+        }).catch((error: AxiosError) => {
+            onResult();
+            Cookies.remove(UserAuthenticationSessionKeys.Email);
+            Cookies.remove(UserAuthenticationSessionKeys.Token);
+            if (error.response) {
+                showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
+            }
+            else {
+                showNotification(MessageToUserSnackbarType.Error, 'An error occurred while trying to sign out');
+            }
+        });
+    }, []);
 
     return <Container sx={{ paddingTop: '5vh', backgroundColor: 'none' }}>
         <Typography sx={{ backgroundColor: 'none' }} variant='h1' fontWeight={700} paddingBottom={2}>
@@ -473,10 +540,10 @@ function BooksPage() {
             />
 
             <FormGroup>
-                <FormControlLabel 
-                    control={<Switch disabled={sortBy.trim().length === 0} />} 
-                    label='Reverse' 
-                    onChange={(e) => setReversed((e.target as HTMLInputElement).checked)} 
+                <FormControlLabel
+                    control={<Switch disabled={sortBy.trim().length === 0} />}
+                    label='Reverse'
+                    onChange={(e) => setReversed((e.target as HTMLInputElement).checked)}
                 />
             </FormGroup>
 
@@ -528,6 +595,47 @@ function BooksPage() {
             handleClose={clearNotification}
             messageType={messageSnackbarState.messageType}
             messageContent={messageSnackbarState.messageContent}
+        />
+
+        {Cookies.get(UserAuthenticationSessionKeys.Email) === undefined || Cookies.get(UserAuthenticationSessionKeys.Token) === undefined ?
+            <Fab
+                color='primary'
+                aria-label='authenticate'
+                variant='extended'
+                sx={{ position: 'fixed', bottom: 25, right: 25, borderRadius: '8pt' }}
+                onClick={() => setSignInPageOpen(true)}
+            >
+                <LockOpenIcon sx={{ mr: 1 }} />
+                Authenticate
+            </Fab> :
+            <>
+                <Fab
+                    color='success'
+                    aria-label='account'
+                    variant='extended'
+                    sx={{ position: 'fixed', bottom: 25, right: 25, borderRadius: '8pt', textTransform: 'none' }}
+                    onClick={() => setUserAccountDialogOpen(true)}
+                >
+                    <VerifiedUserIcon sx={{ mr: 1 }} />
+                    {Cookies.get(UserAuthenticationSessionKeys.Email) as string}
+                </Fab>
+                <UserAccountDialog
+                    isOpen={userAccountDialogOpen}
+                    currentUser={{ 
+                        email: Cookies.get(UserAuthenticationSessionKeys.Email) as string,
+                        token: Cookies.get(UserAuthenticationSessionKeys.Token) as string
+                    }}
+                    signOutCallback={signOut}
+                    handleClose={() => setUserAccountDialogOpen(false)}
+                />
+            </>
+        }
+
+        <UserAuthenticateDialog
+            isOpen={signInPageOpen}
+            handleClose={() => { setSignInPageOpen(false); }}
+            signInCallback={signIn}
+            signUpCallback={signUp}
         />
 
         <CookieDialog

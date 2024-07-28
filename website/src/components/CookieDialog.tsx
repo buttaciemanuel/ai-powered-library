@@ -4,10 +4,8 @@ import {
     Divider,
     Drawer,
     Grid,
-    IconButton,
     Typography
 } from '@mui/material';
-import React from 'react';
 
 import CloseIcon from '@mui/icons-material/Close';
 import DoneIcon from '@mui/icons-material/Done';
@@ -21,7 +19,7 @@ interface CookieDialogPropos {
 
 export default function CookieDialog({ isOpen, acceptCookies, refuseCookies, handleClose }: CookieDialogPropos) {
     return <Drawer
-        anchor={'bottom'}
+        anchor='bottom'
         open={isOpen}
         onClose={handleClose}
     >
