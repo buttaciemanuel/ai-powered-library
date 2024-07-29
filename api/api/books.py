@@ -205,3 +205,142 @@ def add():
     cursor.close()
 
     return jsonify({ 'message': 'Your book has been successfully added to the collection' }), 200
+
+@api_books.route('/review/<int:id>', methods = [ 'POST' ])
+def review(id: int):
+    if not request.args.get('email') or not request.args.get('token'):
+        return jsonify({ 'error': 'You lack authorization to make this call' }), 401
+    
+    cursor = current_app.config["db"].connection.cursor()
+
+    email = request.args.get('email').strip()
+    token = request.args.get('token').strip()
+
+    try:
+        cursor.execute("SELECT email, token FROM sessions WHERE email=\"{}\" AND token=\"{}\";".format(
+            email,
+            token,
+        ))
+    except:
+        cursor.close()
+        return jsonify({ 'error': 'Unable to sign out' }), 500
+
+    entry = cursor.fetchone()
+
+    if entry is None or len(entry) < 1:
+        return jsonify({ 'error': 'Invalid request due to session expiration or invalid user' }), 400
+    
+    try:
+        cursor.execute('SELECT * FROM books WHERE id={};'.format(id))
+    except:
+        cursor.close() 
+        return jsonify({ 'error': 'Unable to search the book inside the database' }), 500
+    
+    entry = cursor.fetchone()
+
+    if entry is None or len(entry) < 1:
+        cursor.close()
+        return jsonify({ 'error': 'Unable to find the book within the database' }), 400
+    
+    n_stars = request.args.get('n_stars', type = int)
+    content = request.args.get('content')
+
+    if n_stars is None or n_stars < 0 or n_stars > 5:
+        cursor.close()
+        return jsonify({ 'error': 'The number of stars must be in range 1...5' }), 400
+    
+    if content is None or len(content.strip()) < 1:
+        cursor.close()
+        return jsonify({ 'error': 'The textual comment must be non-empty' }), 400
+
+    try:
+        cursor.execute('INSERT INTO reviews (email, bookid, n_stars, content) VALUES(\"{}\", {}, {}, \"{}\");'.format(
+            email,
+            id,
+            n_stars,
+            content
+        ))
+        current_app.config['db'].connection.commit()
+    except:
+        cursor.close()
+        return jsonify({ 'error': 'Unable to add a review of the book into the database' }), 500
+    
+    cursor.close()
+
+    return jsonify({ 'message': 'Your review has been successfully added', 'token': token }), 200
+
+@api_books.route('/getreviews/<int:id>', methods = [ 'GET' ])
+def getreviews(id: int):
+    cursor = current_app.config["db"].connection.cursor()
+    
+    try:
+        cursor.execute('SELECT * FROM books WHERE id={};'.format(id))
+    except:
+        cursor.close() 
+        return jsonify({ 'error': 'Unable to search the book inside the database' }), 500
+    
+    entry = cursor.fetchone()
+
+    if entry is None or len(entry) < 1:
+        cursor.close()
+        return jsonify({ 'error': 'Unable to find the book within the database' }), 400
+    
+    try:
+        cursor.execute('SELECT email, n_stars, content, creation_timestamp FROM reviews WHERE bookid={} ORDER BY creation_timestamp DESC LIMIT {};'.format(
+            id,
+            request.args.get('count') if request.args.get('count') else 100
+        ))
+    except:
+        cursor.close() 
+        return jsonify({ 'error': 'Unable to search for the reviewers of the book' }), 500
+    
+    entries = cursor.fetchall()
+    
+    cursor.close()
+
+    if not entries:
+        return jsonify({ 'message': 'This book has not been reviewed yet', 'reviews': [] }), 200
+
+    return jsonify({ 'message': 'The reviewers of the selected book have been computed', 'reviews': [
+        dict(zip([ 'email', 'n_stars', 'content', 'creation_timestamp'], entry)) 
+        for entry in entries
+    ] }), 200
+
+@api_books.route('/getreviewedbooks/<string:email>', methods = [ 'POST' ])
+def getreviewedbooks(email: str):
+    if not email or not request.args.get('token'):
+        return jsonify({ 'error': 'You lack authorization to make this call' }), 401
+    
+    token = request.args.get('token').strip()
+    cursor = current_app.config["db"].connection.cursor()
+
+    try:
+        cursor.execute("SELECT email, token FROM sessions WHERE email=\"{}\" AND token=\"{}\";".format(
+            email,
+            token,
+        ))
+    except:
+        cursor.close()
+        return jsonify({ 'error': 'Unable to search the reviewed books of requested user' }), 500
+
+    entry = cursor.fetchone()
+
+    if entry is None or len(entry) < 1:
+        return jsonify({ 'error': 'Invalid request due to session expiration or invalid credentials' }), 400
+    
+    try:
+        cursor.execute('SELECT bookid FROM reviews where email=\"{}\";'.format(email))
+    except:
+        cursor.close() 
+        return jsonify({ 'error': 'Unable to search for the reviews of the user' }), 500
+    
+    entries = cursor.fetchall()
+    
+    cursor.close()
+
+    if not entries:
+        return jsonify({ 'message': 'This user has not reviewed any books yet', 'reviewed_books': [], 'token': token }), 200
+
+    return jsonify({ 'message': 'The reviewers of the selected book have been computed', 'reviewed_books': [
+        entry[0] for entry in entries
+    ], 'token': token }), 200

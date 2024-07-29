@@ -13,9 +13,12 @@ import React from 'react';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
+import ReviewsIcon from '@mui/icons-material/Reviews';
 import AddBookDialog, { Book } from './AddBookDialog';
 import DeleteBookConfimationDialog from './DeleteBookConfimationDialog';
 import BookSummaryDialog, { BookSummaryInformation } from './BookSummaryDialog';
+import BookReviewsDialog, { BookReview } from './BookReviewsDialog';
+import { UserAuthenticationSession } from './UserAuthenticateDialog';
 
 interface BookItemProps {
     id: number;
@@ -28,13 +31,17 @@ interface BookItemProps {
     editBook: (book: Book) => void;
     deleteBook: (book: Book) => void;
     summarizeBook: (book: Book, onSuccess: (summary: BookSummaryInformation) => void) => void;
+    getReviews: (book: Book, onSuccess: (reviews: BookReview[]) => void) => void;
+    submitReview?: (book: Book, nStars: number, content: string, onSuccess: () => void) => void;
+    currentUser?: UserAuthenticationSession;
+    reviewedByCurrentUser?: boolean;
 }
 
-export default function BookItem({ id, title, author, publicationYear, price, currency, genre, editBook, deleteBook, summarizeBook }: BookItemProps) {
+export default function BookItem({ id, title, author, publicationYear, price, currency, genre, editBook, deleteBook, summarizeBook, getReviews, submitReview, currentUser, reviewedByCurrentUser }: BookItemProps) {
     const [editBookDialogOpen, setEditBookDialogOpen] = React.useState<boolean>(false);
     const [deleteBookDialogOpen, setDeleteBookDialogOpen] = React.useState<boolean>(false);
     const [summarizeBookDialogOpen, setSummarizeBookDialogOpen] = React.useState<boolean>(false);
-    const [bookSummary, setBookSummary] = React.useState<BookSummaryInformation | undefined>(undefined);
+    const [reviewsBookDialogOpen, setReviewsBookDialogOpen] = React.useState<boolean>(false);
 
     return <Card key={`${id}-card`} variant='outlined' sx={{ padding: 3, boxShadow: 'none', borderRadius: '8pt', marginBottom: 3 }}>
         <AddBookDialog
@@ -87,6 +94,26 @@ export default function BookItem({ id, title, author, publicationYear, price, cu
             }}
         />
 
+        {currentUser === undefined ?
+            <></> :
+            <BookReviewsDialog
+                key={`${id}-reviews-dialog`}
+                isOpen={reviewsBookDialogOpen}
+                handleClose={() => setReviewsBookDialogOpen(false)}
+                getReviews={getReviews}
+                reviewedByCurrentUser={reviewedByCurrentUser}
+                submitReview={submitReview}
+                book={{
+                    id: id,
+                    title: title,
+                    author: author,
+                    publication_year: publicationYear,
+                    price: price,
+                    currency: currency,
+                    genre: genre
+                }}
+            />}
+
         <CardContent>
             <Grid container direction='row' >
                 <Grid item sx={{ alignContent: 'center' }}>
@@ -96,6 +123,22 @@ export default function BookItem({ id, title, author, publicationYear, price, cu
                 </Grid>
 
                 <Box sx={{ flexGrow: 1 }} />
+
+
+                {currentUser === undefined ?
+                    <></> :
+                    <Grid item sx={{ paddingRight: 3 }}>
+                        <Button
+                            startIcon={<ReviewsIcon />}
+                            size='medium'
+                            color='inherit'
+                            disableElevation
+                            onClick={() => setReviewsBookDialogOpen(true)}
+                        >
+                            See reviews
+                        </Button>
+                    </Grid>
+                }
 
                 <Grid item sx={{ paddingRight: 3 }}>
                     <Button

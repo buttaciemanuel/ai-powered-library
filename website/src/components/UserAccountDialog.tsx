@@ -28,7 +28,7 @@ export default function UserAccountDialog({ isOpen, currentUser, handleClose, si
             </Typography>
             
             <Typography fontWeight={300} fontSize='1rem'>
-                You can now browse the catalog of books with better options including memorizing favourite books and leaving reviews.
+                You can now browse the catalog of books with better options including leaving reviews.
             </Typography>
 
             <Grid container direction='row' sx={{ paddingTop: 5 }}>

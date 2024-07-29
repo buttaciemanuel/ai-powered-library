@@ -5,6 +5,8 @@ import { Box, Button, Skeleton, Typography } from "@mui/material";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { BookSummaryInformation } from "./BookSummaryDialog";
+import { BookReview } from "./BookReviewsDialog";
+import { UserAuthenticationSession } from "./UserAuthenticateDialog";
 
 interface MultiplePagesCollectionProps {
     currentPage: number;
@@ -13,9 +15,24 @@ interface MultiplePagesCollectionProps {
     editBook: (book: Book) => void;
     deleteBook: (book: Book) => void;
     summarizeBook: (book: Book, onSuccess: (summary: BookSummaryInformation) => void) => void;
+    getReviews: (book: Book, onSuccess: (reviews: BookReview[]) => void) => void;
+    submitReview?: (book: Book, nStars: number, content: string, onSuccess: () => void) => void;
+    booksReviewedByCurrentUser?: number[];
+    currentUser?: UserAuthenticationSession;
 }
 
-export default function MultiplePagesCollection({ currentPage, changePage, books, editBook, deleteBook, summarizeBook }: MultiplePagesCollectionProps) {
+export default function MultiplePagesCollection({ 
+    currentPage, 
+    changePage, 
+    books, 
+    editBook, 
+    deleteBook, 
+    summarizeBook, 
+    getReviews, 
+    submitReview,
+    booksReviewedByCurrentUser, 
+    currentUser 
+}: MultiplePagesCollectionProps) {
     const itemsPerPage = 10;
 
     if (books === undefined) {
@@ -86,6 +103,14 @@ export default function MultiplePagesCollection({ currentPage, changePage, books
                     editBook={editBook}
                     deleteBook={deleteBook}
                     summarizeBook={summarizeBook}
+                    getReviews={getReviews}
+                    submitReview={submitReview}
+                    currentUser={currentUser}
+                    reviewedByCurrentUser={
+                        booksReviewedByCurrentUser === undefined ? 
+                        undefined : 
+                        booksReviewedByCurrentUser.includes(book.id)
+                    }
                 />;
             })}
         </>;

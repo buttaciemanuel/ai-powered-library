@@ -100,7 +100,7 @@ def signout():
     entry = cursor.fetchone()
 
     if entry is None or len(entry) < 1:
-        return jsonify({ 'error': 'Invalid request due to session expiration or invalid user' }), 400
+        return jsonify({ 'error': 'Invalid request due to session expiration or invalid credentials' }), 400
     
     try:
         cursor.execute("DELETE FROM sessions WHERE email=\"{}\" AND token=\"{}\";".format(
@@ -113,5 +113,3 @@ def signout():
         return jsonify({ 'error': 'Unable to sign out' }), 500
 
     return jsonify({ 'message': 'User has successfully signed out' }), 200
-    
-

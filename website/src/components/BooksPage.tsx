@@ -30,6 +30,7 @@ import CookieDialog from './CookieDialog';
 import { BookSummaryInformation } from './BookSummaryDialog';
 import UserAuthenticateDialog, { UserAuthenticationSessionKeys } from './UserAuthenticateDialog';
 import UserAccountDialog from './UserAccountDialog';
+import { BookReview } from './BookReviewsDialog';
 
 enum UserRecommendationInformationCookieKeys {
     ReadingGoal = 'user.readingGoal',
@@ -46,12 +47,15 @@ const api = axios.create({
 });
 
 function BooksPage() {
+    const [signedInUser, setSignedInUser] = React.useState<boolean>(false);
     const [signInPageOpen, setSignInPageOpen] = React.useState<boolean>(false);
 
     const [userAccountDialogOpen, setUserAccountDialogOpen] = React.useState<boolean>(false);
 
     const [cookieDialogOpen, setCookieDialogOpen] = React.useState<boolean>(false);
     const [tellMeDialogOpen, setTellMeDialogOpen] = React.useState<boolean>(false);
+
+    const [booksReviewedByCurrentUser, setBooksReviewedByCurrentUser] = React.useState<number[] | undefined>(undefined);
 
     const [addBookDialogOpen, setAddBookDialogOpen] = React.useState<boolean>(false);
 
@@ -129,6 +133,15 @@ function BooksPage() {
         const delayDebounceFn = setTimeout(fetchBooks, 250);
         return () => clearTimeout(delayDebounceFn);
     }, [fetchBooks, filterTitle, filterAuthor, filterGenre, filterPublicationYear, countLimit, sortBy, reversed]);
+
+    React.useEffect(() => {
+        const email = Cookies.get(UserAuthenticationSessionKeys.Email);
+        const token = Cookies.get(UserAuthenticationSessionKeys.Token);
+
+        if (email !== undefined && token !== undefined) {
+            getReviewedBooks(email, token);
+        }
+    }, [signedInUser, books]);
 
     const addBook = React.useCallback((book: Book) => {
         let requestParameters = [];
@@ -227,6 +240,49 @@ function BooksPage() {
         });
     }, [fetchBooks]);
 
+    const getReviews = React.useCallback((book: Book, onSuccess: (reviews: BookReview[]) => void) => {
+        api.get(`/books/getreviews/${book.id}`).then((response) => {
+            onSuccess(response.data['reviews']);
+        }).catch((error: AxiosError) => {
+            if (error.response) {
+                showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
+            }
+            else {
+                showNotification(MessageToUserSnackbarType.Error, 'An error occurred while trying to retrieve the reviews of the book');
+            }
+        });
+    }, [fetchBooks]);
+
+    const getReviewedBooks = React.useCallback((email: string, token: string) => {
+        api.post(`/books/getreviewedbooks/${email}?token=${token}`).then((response) => {
+            setBooksReviewedByCurrentUser(response.data['reviewed_books']);
+        }).catch((error: AxiosError) => {
+            if (error.response) {
+                showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
+            }
+            else {
+                showNotification(MessageToUserSnackbarType.Error, 'An error occurred while retrieving the books reviewed by signed in user');
+            }
+        });
+    }, []);
+
+    const reviewCallback = React.useCallback((book: Book, nStars: number, content: string, onSuccess: () => void) => {
+        const email = Cookies.get(UserAuthenticationSessionKeys.Email);
+        const token = Cookies.get(UserAuthenticationSessionKeys.Token);
+        api.post(`/books/review/${book.id}?token=${token}&email=${email}&n_stars=${nStars}&content=${content}`).then(() => {
+            onSuccess();
+            showNotification(MessageToUserSnackbarType.Success, `You have successfully reviewed ${book.title}`);
+            fetchBooks();
+        }).catch((error: AxiosError) => {
+            if (error.response) {
+                showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
+            }
+            else {
+                showNotification(MessageToUserSnackbarType.Error, 'An error occurred while reviewing the selected book');
+            }
+        });
+    }, []);
+
     const showNotification = (messageType: MessageToUserSnackbarType, messageContent: string) => {
         setMessageSnackbarState({
             isOpen: true,
@@ -249,10 +305,6 @@ function BooksPage() {
         Cookies.set(UserRecommendationInformationCookieKeys.ReadingGoalDescription, info.readingGoalDescription, options);
         Cookies.set(UserRecommendationInformationCookieKeys.ReadingMood, info.readingMood, options);
     }, []);
-    // FIXME: remove in final
-    // Cookies.remove(UserRecommendationInformationCookieKeys.ReadingGoal);
-    // Cookies.remove(UserRecommendationInformationCookieKeys.ReadingGoalDescription);
-    // Cookies.remove(UserRecommendationInformationCookieKeys.ReadingMood);
 
     const signIn = React.useCallback((email: string, password: string, onResult: () => void) => {
         api.post(`/auth/signin?email=${email}&password=${password}`).then((response) => {
@@ -260,11 +312,13 @@ function BooksPage() {
             Cookies.set(UserAuthenticationSessionKeys.Email, email);
             Cookies.set(UserAuthenticationSessionKeys.Token, response.data[UserAuthenticationSessionKeys.Token]);
             showNotification(MessageToUserSnackbarType.Success, `You have successfully signed in as ${email}`);
+            setSignedInUser(true);
             fetchBooks();
         }).catch((error: AxiosError) => {
             onResult();
             Cookies.remove(UserAuthenticationSessionKeys.Email);
             Cookies.remove(UserAuthenticationSessionKeys.Token);
+            setSignedInUser(false);
             if (error.response) {
                 showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
             }
@@ -280,11 +334,13 @@ function BooksPage() {
             Cookies.set(UserAuthenticationSessionKeys.Email, email);
             Cookies.set(UserAuthenticationSessionKeys.Token, response.data[UserAuthenticationSessionKeys.Token]);
             showNotification(MessageToUserSnackbarType.Success, `You have successfully signed up as ${email}`);
+            setSignedInUser(true);
             fetchBooks();
         }).catch((error: AxiosError) => {
             onResult();
             Cookies.remove(UserAuthenticationSessionKeys.Email);
             Cookies.remove(UserAuthenticationSessionKeys.Token);
+            setSignedInUser(false);
             if (error.response) {
                 showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
             }
@@ -300,11 +356,13 @@ function BooksPage() {
             Cookies.remove(UserAuthenticationSessionKeys.Email);
             Cookies.remove(UserAuthenticationSessionKeys.Token);
             showNotification(MessageToUserSnackbarType.Success, 'You have successfully signed out');
+            setSignedInUser(false);
             fetchBooks();
         }).catch((error: AxiosError) => {
             onResult();
             Cookies.remove(UserAuthenticationSessionKeys.Email);
             Cookies.remove(UserAuthenticationSessionKeys.Token);
+            setSignedInUser(false);
             if (error.response) {
                 showNotification(MessageToUserSnackbarType.Error, (error.response.data as ResponseError).error);
             }
@@ -588,6 +646,21 @@ function BooksPage() {
             editBook={editBook}
             deleteBook={deleteBook}
             summarizeBook={summarizeBook}
+            getReviews={getReviews}
+            submitReview={
+                Cookies.get(UserAuthenticationSessionKeys.Email) === undefined ||
+                    Cookies.get(UserAuthenticationSessionKeys.Token) === undefined ? 
+                    undefined :
+                    reviewCallback 
+            }
+            booksReviewedByCurrentUser={booksReviewedByCurrentUser}
+            currentUser={
+                Cookies.get(UserAuthenticationSessionKeys.Email) === undefined ||
+                    Cookies.get(UserAuthenticationSessionKeys.Token) === undefined ? undefined : {
+                    email: Cookies.get(UserAuthenticationSessionKeys.Email) as string,
+                    token: Cookies.get(UserAuthenticationSessionKeys.Token) as string
+                }
+            }
         />
 
         <MessageToUserSnackbar
@@ -621,7 +694,7 @@ function BooksPage() {
                 </Fab>
                 <UserAccountDialog
                     isOpen={userAccountDialogOpen}
-                    currentUser={{ 
+                    currentUser={{
                         email: Cookies.get(UserAuthenticationSessionKeys.Email) as string,
                         token: Cookies.get(UserAuthenticationSessionKeys.Token) as string
                     }}
