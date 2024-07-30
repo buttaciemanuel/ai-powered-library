@@ -7,6 +7,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { BookSummaryInformation } from "./BookSummaryDialog";
 import { BookReview } from "./BookReviewsDialog";
 import { UserAuthenticationSession } from "./UserAuthenticateDialog";
+import { useMediaQuery } from "react-responsive";
 
 interface MultiplePagesCollectionProps {
     currentPage: number;
@@ -33,6 +34,7 @@ export default function MultiplePagesCollection({
     booksReviewedByCurrentUser, 
     currentUser 
 }: MultiplePagesCollectionProps) {
+    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
     const itemsPerPage = 10;
 
     if (books === undefined) {
@@ -51,7 +53,7 @@ export default function MultiplePagesCollection({
                 paddingY: 5
             }}
         >
-            <Typography variant='h5' fontWeight={300} paddingBottom={5}>
+            <Typography variant={isTabletOrMobile ? 'body1' : 'h5'} fontWeight={300} paddingBottom={5}>
                 There are no books to visualize at the moment.
             </Typography>
         </Box>;

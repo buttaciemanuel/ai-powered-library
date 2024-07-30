@@ -10,6 +10,7 @@ import {
 import { BookReview } from './BookReviewsDialog';
 import { UserAuthenticationSessionKeys } from './UserAuthenticateDialog';
 import Cookies from 'js-cookie';
+import { useMediaQuery } from 'react-responsive';
 
 interface BookReviewCardProps {
     key: string;
@@ -17,15 +18,17 @@ interface BookReviewCardProps {
 }
 
 export default function BookReviewCard({ key, review }: BookReviewCardProps) {
+    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+    
     return <Card key={key} variant='outlined' sx={{ padding: 3, boxShadow: 'none', borderRadius: '8pt', marginBottom: 3 }}>
         <CardContent>
             <Grid container direction='row' >
-                <Rating defaultValue={review.n_stars} precision={1} readOnly />
+                <Rating size={isTabletOrMobile ? 'small' : 'medium'} defaultValue={review.n_stars} precision={1} readOnly />
 
                 <Box sx={{ flexGrow: 1 }} />
 
                 <Typography color="text.secondary" variant='body2'>
-                    {review.creation_timestamp}
+                    {isTabletOrMobile ? new Date(Date.parse(review.creation_timestamp)).toLocaleDateString() : review.creation_timestamp}
                 </Typography>
             </Grid>
 
@@ -35,7 +38,7 @@ export default function BookReviewCard({ key, review }: BookReviewCardProps) {
                 {Cookies.get(UserAuthenticationSessionKeys.Email) === review.email ? 'You' : review.email}
             </Typography>
 
-            <Typography variant='body1'>
+            <Typography variant={isTabletOrMobile ? 'body2' : 'body1'} align='justify'>
                 {review.content}
             </Typography>
         </CardContent>

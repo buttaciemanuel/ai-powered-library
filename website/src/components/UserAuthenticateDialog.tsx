@@ -18,6 +18,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import PasswordIcon from '@mui/icons-material/Password';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { useMediaQuery } from 'react-responsive';
 
 export interface UserAuthenticationSession {
     email: string;
@@ -37,6 +38,8 @@ interface UserAuthenticateDialogProps {
 }
 
 export default function UserAuthenticateDialog({ isOpen, handleClose, signInCallback, signUpCallback }: UserAuthenticateDialogProps) {
+    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+
     const [firstTimeUser, setFirstTimeUser] = React.useState<boolean>(false);
     const [email, setEmail] = React.useState<string>('');
     const [password, setPassword] = React.useState<string>('');
@@ -71,7 +74,11 @@ export default function UserAuthenticateDialog({ isOpen, handleClose, signInCall
             </Typography>
 
             <Box
-                sx={{
+                sx={isTabletOrMobile ? {
+                    justifyContent: "center",
+                    alignItems: "center",
+                    paddingTop: 5
+                } : {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
@@ -84,6 +91,7 @@ export default function UserAuthenticateDialog({ isOpen, handleClose, signInCall
                     placeholder='Email'
                     variant='outlined'
                     type='email'
+                    size={isTabletOrMobile ? 'small' : 'medium'}
                     fullWidth
                     autoComplete='off'
                     InputProps={{
@@ -100,7 +108,13 @@ export default function UserAuthenticateDialog({ isOpen, handleClose, signInCall
                         )
                     }}
                     InputLabelProps={{ shrink: false }}
-                    sx={{
+                    sx={isTabletOrMobile ? {
+                        '& .MuiOutlinedInput-root': {
+                            backgroundColor: 'white'
+                        },
+                        '& .MuiInputLabel-root': { display: 'none' },
+                        paddingBottom: 2
+                    } : {
                         '& .MuiOutlinedInput-root': {
                             backgroundColor: 'white'
                         },
@@ -116,6 +130,7 @@ export default function UserAuthenticateDialog({ isOpen, handleClose, signInCall
                     placeholder='Password'
                     variant='outlined'
                     type={passwordVisible ? 'text' : 'password'}
+                    size={isTabletOrMobile ? 'small' : 'medium'}
                     fullWidth
                     autoComplete='off'
                     InputProps={{
@@ -163,7 +178,7 @@ export default function UserAuthenticateDialog({ isOpen, handleClose, signInCall
 
                 <Button
                     disabled={email.trim().length === 0 || password.trim().length === 0}
-                    size='large'
+                    size={isTabletOrMobile ? 'medium' : 'large'}
                     disableElevation
                     startIcon={<LoginIcon />}
                     sx={{ borderRadius: '8pt' }}

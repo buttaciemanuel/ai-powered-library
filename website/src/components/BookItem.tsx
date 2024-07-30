@@ -6,6 +6,7 @@ import {
     CardContent,
     Divider,
     Grid,
+    IconButton,
     Typography
 } from '@mui/material';
 import React from 'react';
@@ -19,6 +20,7 @@ import DeleteBookConfimationDialog from './DeleteBookConfimationDialog';
 import BookSummaryDialog, { BookSummaryInformation } from './BookSummaryDialog';
 import BookReviewsDialog, { BookReview } from './BookReviewsDialog';
 import { UserAuthenticationSession } from './UserAuthenticateDialog';
+import { useMediaQuery } from 'react-responsive';
 
 interface BookItemProps {
     id: number;
@@ -38,6 +40,8 @@ interface BookItemProps {
 }
 
 export default function BookItem({ id, title, author, publicationYear, price, currency, genre, editBook, deleteBook, summarizeBook, getReviews, submitReview, currentUser, reviewedByCurrentUser }: BookItemProps) {
+    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+
     const [editBookDialogOpen, setEditBookDialogOpen] = React.useState<boolean>(false);
     const [deleteBookDialogOpen, setDeleteBookDialogOpen] = React.useState<boolean>(false);
     const [summarizeBookDialogOpen, setSummarizeBookDialogOpen] = React.useState<boolean>(false);
@@ -127,21 +131,36 @@ export default function BookItem({ id, title, author, publicationYear, price, cu
 
                 {currentUser === undefined ?
                     <></> :
-                    <Grid item sx={{ paddingRight: 3 }}>
-                        <Button
-                            startIcon={<ReviewsIcon />}
-                            size='medium'
-                            color='inherit'
-                            disableElevation
-                            onClick={() => setReviewsBookDialogOpen(true)}
-                        >
-                            See reviews
-                        </Button>
+                    <Grid item sx={{ paddingRight: isTabletOrMobile ? 1 : 3 }}>
+                        {isTabletOrMobile ?
+                            <IconButton
+                                size='small'
+                                color='inherit'
+                                onClick={() => setReviewsBookDialogOpen(true)}
+                            >
+                                <ReviewsIcon />
+                            </IconButton> :
+                            <Button
+                                startIcon={<ReviewsIcon />}
+                                size='medium'
+                                color='inherit'
+                                disableElevation
+                                onClick={() => setReviewsBookDialogOpen(true)}
+                            >
+                                See reviews
+                            </Button>
+                        }
                     </Grid>
                 }
 
-                <Grid item sx={{ paddingRight: 3 }}>
-                    <Button
+                <Grid item sx={{ paddingRight: isTabletOrMobile ? 1 : 3 }}>
+                    {isTabletOrMobile ? <IconButton
+                        size='small'
+                        color='primary'
+                        onClick={() => setEditBookDialogOpen(true)}
+                    >
+                        <EditIcon />
+                    </IconButton> : <Button
                         startIcon={<EditIcon />}
                         size='medium'
                         color='primary'
@@ -150,10 +169,17 @@ export default function BookItem({ id, title, author, publicationYear, price, cu
                     >
                         Edit
                     </Button>
+                    }
                 </Grid>
 
                 <Grid item>
-                    <Button
+                    {isTabletOrMobile ? <IconButton
+                        size='small'
+                        color='error'
+                        onClick={() => setDeleteBookDialogOpen(true)}
+                    >
+                        <DeleteForeverIcon />
+                    </IconButton> : <Button
                         startIcon={<DeleteForeverIcon />}
                         size='medium'
                         color='error'
@@ -162,25 +188,29 @@ export default function BookItem({ id, title, author, publicationYear, price, cu
                     >
                         Delete
                     </Button>
+                    }
                 </Grid>
 
             </Grid>
 
             <Divider sx={{ marginTop: 1, marginBottom: 2 }} />
 
-            <Grid container direction='row'>
+            <Grid container direction={isTabletOrMobile ? 'column' : 'row'}>
                 <Grid item sx={{ backgroundColor: 'none' }}>
                     <Typography sx={{ fontSize: 14 }} color='text.secondary' gutterBottom>
                         {author}
                     </Typography>
-                    <Typography variant='h5' component='div' sx={{
-                        width: '50vw',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: '1',
-                        WebkitBoxOrient: 'vertical',
-                    }}>
+                    <Typography
+                        variant={isTabletOrMobile ? 'h6' : 'h5'}
+                        component='div'
+                        sx={{
+                            width: isTabletOrMobile ? '70vw' : '50vw',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: '1',
+                            WebkitBoxOrient: 'vertical',
+                        }}>
                         {title}
                     </Typography>
                     <Typography sx={{ mb: 1.5 }} color='text.secondary'>
@@ -188,10 +218,14 @@ export default function BookItem({ id, title, author, publicationYear, price, cu
                     </Typography>
                 </Grid>
 
-                <Box sx={{ flexGrow: 1 }} />
+                {isTabletOrMobile ? <></> : <Box sx={{ flexGrow: 1 }} />}
 
                 <Grid item sx={{ backgroundColor: 'none', alignContent: 'center' }}>
-                    <Typography variant='h5' color='text.secondary' gutterBottom>
+                    <Typography
+                        variant={isTabletOrMobile ? 'h6' : 'h5'}
+                        color='text.secondary'
+                        gutterBottom
+                    >
                         {price} {currency}
                     </Typography>
                 </Grid>

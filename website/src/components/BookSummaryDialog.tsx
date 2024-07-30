@@ -14,6 +14,7 @@ import React from 'react';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CloseIcon from '@mui/icons-material/Close';
 import { Book } from './AddBookDialog';
+import { useMediaQuery } from 'react-responsive';
 
 export interface BookSummaryInformation {
     summary: string;
@@ -29,6 +30,8 @@ interface BookSummaryDialogProps {
 }
 
 export default function BookSummaryDialog({ key, isOpen, book, handleClose, summarizeBook }: BookSummaryDialogProps) {
+    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+    
     const [bookSummary, setBookSummary] = React.useState<undefined | BookSummaryInformation>(undefined);
 
     const summarizeCallback = React.useCallback(() => {
@@ -64,7 +67,7 @@ export default function BookSummaryDialog({ key, isOpen, book, handleClose, summ
                 <Box sx={{ flexGrow: 1 }} />
 
                 <Button
-                    size='large'
+                    size={isTabletOrMobile ? 'medium' : 'large'}
                     color='secondary'
                     disableElevation
                     startIcon={<AutoAwesomeIcon />}
@@ -78,38 +81,38 @@ export default function BookSummaryDialog({ key, isOpen, book, handleClose, summ
                 </Button>
             </Toolbar>
             
-            <Typography fontSize='3rem' fontWeight={700}>
+            <Typography fontSize={isTabletOrMobile ? '1.75rem' : '3rem'} fontWeight={700}>
                 {book.title}
             </Typography>
 
-            <Typography variant='body1' paddingTop={5} color='text.secondary' fontWeight={300} gutterBottom>
+            <Typography variant={isTabletOrMobile ? 'body2' : 'body1'} paddingTop={5} color='text.secondary' fontWeight={300} gutterBottom>
                 Author
             </Typography>
 
-            <Typography fontSize='1.5rem' fontWeight={300} gutterBottom>
+            <Typography fontSize={isTabletOrMobile ? '1.1rem' : '1.5rem'} fontWeight={300} gutterBottom>
                 {book.author}
             </Typography>
 
-            <Typography variant='body1' paddingTop={3} color='text.secondary' fontWeight={300} gutterBottom>
+            <Typography variant={isTabletOrMobile ? 'body2' : 'body1'} paddingTop={3} color='text.secondary' fontWeight={300} gutterBottom>
                 Summary
             </Typography>
 
             {
                 bookSummary !== undefined ?
-                    <Typography fontSize='1.15rem' fontWeight={300} align='justify' gutterBottom>
+                    <Typography fontSize={isTabletOrMobile ? '0.9rem' : '1.15rem'} fontWeight={300} align='justify' gutterBottom>
                         {bookSummary.summary}
                     </Typography>
                     :
                     <Skeleton variant='rounded' height='10vh' />
             }
 
-            <Typography variant='body1' paddingTop={3} color='text.secondary' fontWeight={300} gutterBottom>
+            <Typography variant={isTabletOrMobile ? 'body2' : 'body1'} paddingTop={3} color='text.secondary' fontWeight={300} gutterBottom>
                 Recommendation for you
             </Typography>
 
             {
                 bookSummary !== undefined ?
-                    <Typography fontSize='1.15rem' fontWeight={300} align='justify' gutterBottom paddingBottom={5}>
+                    <Typography fontSize={isTabletOrMobile ? '0.9rem' : '1.15rem'} fontWeight={300} align='justify' gutterBottom paddingBottom={5}>
                         {bookSummary.recommendation}
                     </Typography>
                     :

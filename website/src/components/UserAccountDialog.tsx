@@ -8,6 +8,7 @@ import {
 
 import LogoutIcon from '@mui/icons-material/Logout';
 import { UserAuthenticationSession } from './UserAuthenticateDialog';
+import { useMediaQuery } from 'react-responsive';
 
 interface UserAccountDialogProps {
     isOpen: boolean;
@@ -17,6 +18,8 @@ interface UserAccountDialogProps {
 }
 
 export default function UserAccountDialog({ isOpen, currentUser, handleClose, signOutCallback }: UserAccountDialogProps) {
+    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+    
     return <Drawer
         anchor='bottom'
         open={isOpen}
@@ -35,7 +38,7 @@ export default function UserAccountDialog({ isOpen, currentUser, handleClose, si
                 <Box sx={{ flexGrow: 1 }} />
 
                 <Button
-                    size='large'
+                    size={isTabletOrMobile ? 'medium' : 'large'}
                     disableElevation
                     startIcon={<LogoutIcon />}
                     sx={{ borderRadius: '8pt' }}

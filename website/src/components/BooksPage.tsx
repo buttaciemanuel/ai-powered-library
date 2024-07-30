@@ -14,6 +14,7 @@ import {
     Typography
 } from '@mui/material';
 import React from 'react';
+import { useMediaQuery } from 'react-responsive';
 import Cookies from 'js-cookie';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -47,6 +48,8 @@ const api = axios.create({
 });
 
 function BooksPage() {
+    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+
     const [signedInUser, setSignedInUser] = React.useState<boolean>(false);
     const [signInPageOpen, setSignInPageOpen] = React.useState<boolean>(false);
 
@@ -373,18 +376,28 @@ function BooksPage() {
     }, []);
 
     return <Container sx={{ paddingTop: '5vh', backgroundColor: 'none' }}>
-        <Typography sx={{ backgroundColor: 'none' }} variant='h1' fontWeight={700} paddingBottom={2}>
-            Discover all the books
+        <Typography
+            sx={{ backgroundColor: 'none' }}
+            variant={isTabletOrMobile ? 'h4' : 'h1'}
+            fontWeight={700}
+            paddingBottom={2}
+        >
+            Browse this catalog
         </Typography>
 
-        <Typography sx={{ backgroundColor: 'none', paddingLeft: 0.5 }} variant='h5' fontWeight={300} paddingBottom={5}>
+        <Typography
+            sx={{ backgroundColor: 'none', paddingLeft: 0.5 }}
+            variant={isTabletOrMobile ? 'body1' : 'h5'}
+            fontWeight={300}
+            paddingBottom={5}
+        >
             You can freely add, edit and delete the books from this catalog.
         </Typography>
 
         <TextField
-            id='outlined-basic'
-            placeholder='Search any book title'
+            placeholder={isTabletOrMobile ? 'Search title' : 'Search any book title'}
             variant='outlined'
+            size={isTabletOrMobile ? 'small' : 'medium'}
             type='text'
             fullWidth
             autoComplete='off'
@@ -413,7 +426,10 @@ function BooksPage() {
         />
 
         <Box
-            sx={{
+            sx={isTabletOrMobile ? {
+                justifyContent: "center",
+                alignItems: "center",
+            } : {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -422,7 +438,7 @@ function BooksPage() {
             }}
         >
             <TextField
-                id='outlined-basic'
+                size={isTabletOrMobile ? 'small' : 'medium'}
                 placeholder='Author'
                 variant='outlined'
                 type='text'
@@ -442,7 +458,13 @@ function BooksPage() {
                     )
                 }}
                 InputLabelProps={{ shrink: false }}
-                sx={{
+                sx={isTabletOrMobile ? {
+                    '& .MuiOutlinedInput-root': {
+                        backgroundColor: 'white'
+                    },
+                    '& .MuiInputLabel-root': { display: 'none' },
+                    paddingTop: 2
+                } : {
                     '& .MuiOutlinedInput-root': {
                         backgroundColor: 'white'
                     },
@@ -454,7 +476,7 @@ function BooksPage() {
             />
 
             <TextField
-                id='outlined-basic'
+                size={isTabletOrMobile ? 'small' : 'medium'}
                 placeholder='Genre'
                 variant='outlined'
                 type='text'
@@ -474,26 +496,35 @@ function BooksPage() {
                     )
                 }}
                 InputLabelProps={{ shrink: false }}
-                sx={{
-                    '& .MuiOutlinedInput-root': {
-                        backgroundColor: 'white'
-                    },
-                    '& .MuiInputLabel-root': { display: 'none' }
-                }}
+                sx={isTabletOrMobile ?
+                    {
+                        '& .MuiOutlinedInput-root': {
+                            backgroundColor: 'white'
+                        },
+                        '& .MuiInputLabel-root': { display: 'none' },
+                        paddingTop: 2
+                    } : {
+                        '& .MuiOutlinedInput-root': {
+                            backgroundColor: 'white'
+                        },
+                        '& .MuiInputLabel-root': { display: 'none' }
+                    }}
                 onChange={(e) => { setFilterGenre(e.target.value); }}
                 value={filterGenre}
             />
 
 
             <Autocomplete
+                size={isTabletOrMobile ? 'small' : 'medium'}
                 fullWidth
                 disableClearable
                 options={Array(2024 - 1000 + 1).fill(undefined).map((v, i) => 2024 - i)}
-                sx={{ paddingLeft: 1 }}
+                sx={isTabletOrMobile ? { paddingTop: 2 } : { paddingLeft: 1 }}
                 onChange={(_, value) => { setFilterPublicationYear(value.toString()); }}
                 renderInput={(params) => (
                     <TextField
                         {...params}
+                        size={isTabletOrMobile ? 'small' : 'medium'}
                         placeholder='Publication year'
                         InputProps={{
                             ...params.InputProps,
@@ -517,7 +548,11 @@ function BooksPage() {
         </Box>
 
         <Box
-            sx={{
+            sx={isTabletOrMobile ? {
+                justifyContent: "center",
+                alignItems: "center",
+                paddingBottom: 5
+            } : {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -535,11 +570,14 @@ function BooksPage() {
                     '100',
                     'All'
                 ]}
-                sx={{ paddingRight: 1, width: '15vw' }}
+                fullWidth={isTabletOrMobile}
+                size={isTabletOrMobile ? 'small' : 'medium'}
+                sx={isTabletOrMobile ? { paddingTop: 2 } : { paddingRight: 1, width: '15vw' }}
                 onChange={(_, value) => { setCountLimit(value); }}
                 renderInput={(params) => (
                     <TextField
                         {...params}
+                        size={isTabletOrMobile ? 'small' : 'medium'}
                         placeholder='Number of results'
                         InputProps={{
                             ...params.InputProps,
@@ -571,11 +609,14 @@ function BooksPage() {
                     'Currency',
                     'Genre'
                 ]}
-                sx={{ paddingRight: 3, width: '15vw' }}
+                fullWidth={isTabletOrMobile}
+                size={isTabletOrMobile ? 'small' : 'medium'}
+                sx={isTabletOrMobile ? { paddingTop: 2 } : { paddingRight: 3, width: '15vw' }}
                 onChange={(_, value) => { setSortBy(value); }}
                 renderInput={(params) => (
                     <TextField
                         {...params}
+                        size={isTabletOrMobile ? 'small' : 'medium'}
                         placeholder='Sort by'
                         InputProps={{
                             ...params.InputProps,
@@ -601,18 +642,27 @@ function BooksPage() {
                 <FormControlLabel
                     control={<Switch disabled={sortBy.trim().length === 0} />}
                     label='Reverse'
+                    sx={isTabletOrMobile ? { paddingTop: 2 } : {}}
                     onChange={(e) => setReversed((e.target as HTMLInputElement).checked)}
                 />
             </FormGroup>
 
-            <Box sx={{ flexGrow: 1 }} />
+            {isTabletOrMobile ? <></> : <Box sx={{ flexGrow: 1 }} />}
 
             <Button
-                variant='contained'
-                size='large'
+                variant='outlined'
+                size={isTabletOrMobile ? 'medium' : 'large'}
+                fullWidth={isTabletOrMobile}
                 disableElevation
                 startIcon={<AddIcon />}
-                sx={{ marginLeft: 3, width: '15vw', borderRadius: '8pt' }}
+                sx={isTabletOrMobile ? {
+                    marginTop: 2,
+                    borderRadius: '8pt'
+                } : {
+                    marginLeft: 3,
+                    width: '15vw',
+                    borderRadius: '8pt'
+                }}
                 onClick={() => setAddBookDialogOpen(true)}
             >
                 Add new book
@@ -649,9 +699,9 @@ function BooksPage() {
             getReviews={getReviews}
             submitReview={
                 Cookies.get(UserAuthenticationSessionKeys.Email) === undefined ||
-                    Cookies.get(UserAuthenticationSessionKeys.Token) === undefined ? 
+                    Cookies.get(UserAuthenticationSessionKeys.Token) === undefined ?
                     undefined :
-                    reviewCallback 
+                    reviewCallback
             }
             booksReviewedByCurrentUser={booksReviewedByCurrentUser}
             currentUser={
@@ -678,8 +728,8 @@ function BooksPage() {
                 sx={{ position: 'fixed', bottom: 25, right: 25, borderRadius: '8pt' }}
                 onClick={() => setSignInPageOpen(true)}
             >
-                <LockOpenIcon sx={{ mr: 1 }} />
-                Authenticate
+                <LockOpenIcon sx={isTabletOrMobile ? {} : { mr: 1 }} />
+                {isTabletOrMobile ? '' : 'Authenticate'}
             </Fab> :
             <>
                 <Fab
@@ -689,8 +739,8 @@ function BooksPage() {
                     sx={{ position: 'fixed', bottom: 25, right: 25, borderRadius: '8pt', textTransform: 'none' }}
                     onClick={() => setUserAccountDialogOpen(true)}
                 >
-                    <VerifiedUserIcon sx={{ mr: 1 }} />
-                    {Cookies.get(UserAuthenticationSessionKeys.Email) as string}
+                    <VerifiedUserIcon sx={isTabletOrMobile ? {} : { mr: 1 }} />
+                    {isTabletOrMobile ? '' : Cookies.get(UserAuthenticationSessionKeys.Email) as string}
                 </Fab>
                 <UserAccountDialog
                     isOpen={userAccountDialogOpen}

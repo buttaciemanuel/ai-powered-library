@@ -15,6 +15,7 @@ import React from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
+import { useMediaQuery } from 'react-responsive';
 
 export interface Book {
     id: number;
@@ -35,6 +36,8 @@ interface AddBookDialogProps {
 }
 
 export default function AddBookDialog({ key, isOpen, handleClose, saveBook, editableBook }: AddBookDialogProps) {
+    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+    
     const [title, setTitle] = React.useState<string>(editableBook ? editableBook.title : '');
     const [author, setAuthor] = React.useState<string>(editableBook ? editableBook.author : '');
     const [genre, setGenre] = React.useState<string>(editableBook ? editableBook.genre : '');
@@ -63,7 +66,7 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                 <Box sx={{ flexGrow: 1 }} />
 
                 <Button
-                    size='large'
+                    size={isTabletOrMobile ? 'medium' : 'large'}
                     disableElevation
                     startIcon={editableBook ? <EditIcon /> : <AddIcon />}
                     sx={{ borderRadius: '8pt' }}
@@ -101,10 +104,15 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                 fullWidth
                 autoComplete='off'
                 InputProps={{
-                    style: { backgroundColor: 'none', border: 'none', fontSize: '3rem', fontWeight: 700 },
+                    style: { 
+                        backgroundColor: 'none', 
+                        border: 'none', 
+                        fontSize: isTabletOrMobile ? '1.75rem' : '3rem', 
+                        fontWeight: 700 
+                    },
                     disableUnderline: true,
                 }}
-                InputLabelProps={{ shrink: false, style: { fontSize: '3rem' } }}
+                InputLabelProps={{ shrink: false, style: { fontSize: isTabletOrMobile ? '1.75rem' : '3rem' } }}
                 sx={{
                     '& .MuiOutlinedInput-root': {
                         backgroundColor: 'none'
@@ -115,7 +123,13 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                 value={title}
             />
 
-            <Typography variant='body1' paddingTop={5} color='text.secondary' fontWeight={300} gutterBottom>
+            <Typography 
+                variant={isTabletOrMobile ? 'body2' : 'body1'}
+                paddingTop={5} 
+                color='text.secondary' 
+                fontWeight={300} 
+                gutterBottom
+            >
                 Author
             </Typography>
 
@@ -126,10 +140,15 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                 fullWidth
                 autoComplete='off'
                 InputProps={{
-                    style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: '1.5rem', fontWeight: 300 },
+                    style: { 
+                        borderRadius: '10pt', 
+                        backgroundColor: 'white', 
+                        fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem',
+                        fontWeight: 300 
+                    },
                     disableUnderline: true,
                 }}
-                InputLabelProps={{ shrink: false, style: { fontSize: '1.5rem' } }}
+                InputLabelProps={{ shrink: false, style: { fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem' } }}
                 sx={{
                     '& .MuiOutlinedInput-root': {
                         backgroundColor: 'none'
@@ -140,7 +159,13 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                 value={author}
             />
 
-            <Typography variant='body1' paddingTop={3} color='text.secondary' fontWeight={300} gutterBottom>
+            <Typography 
+                variant={isTabletOrMobile ? 'body2' : 'body1'}
+                paddingTop={3} 
+                color='text.secondary' 
+                fontWeight={300} 
+                gutterBottom
+            >
                 Genre
             </Typography>
 
@@ -151,10 +176,15 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                 fullWidth
                 autoComplete='off'
                 InputProps={{
-                    style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: '1.5rem', fontWeight: 300 },
+                    style: { 
+                        borderRadius: '10pt', 
+                        backgroundColor: 'white', 
+                        fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem', 
+                        fontWeight: 300 
+                    },
                     disableUnderline: true,
                 }}
-                InputLabelProps={{ shrink: false, style: { fontSize: '1.5rem' } }}
+                InputLabelProps={{ shrink: false, style: { fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem' } }}
                 sx={{
                     '& .MuiOutlinedInput-root': {
                         backgroundColor: 'none'
@@ -165,7 +195,13 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                 value={genre}
             />
 
-            <Typography variant='body1' paddingTop={3} color='text.secondary' fontWeight={300} gutterBottom>
+            <Typography 
+                variant={isTabletOrMobile ? 'body2' : 'body1'}
+                paddingTop={3} 
+                color='text.secondary' 
+                fontWeight={300} 
+                gutterBottom
+            >
                 Publication year
             </Typography>
 
@@ -184,7 +220,7 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                         InputProps={{
                             ...params.InputProps,
                             disableUnderline: true,
-                            style: { fontSize: '1.5rem', fontWeight: 300 }
+                            style: { fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem', fontWeight: 300 }
                         }}
                         sx={{
                             '& .MuiOutlinedInput-root': {
@@ -198,7 +234,13 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                 )}
             />
 
-            <Typography variant='body1' paddingTop={3} color='text.secondary' fontWeight={300} gutterBottom>
+            <Typography 
+                variant={isTabletOrMobile ? 'body2' : 'body1'}
+                paddingTop={3} 
+                color='text.secondary' 
+                fontWeight={300} 
+                gutterBottom
+            >
                 Price
             </Typography>
 
@@ -216,10 +258,15 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                     fullWidth
                     autoComplete='off'
                     InputProps={{
-                        style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: '1.5rem', fontWeight: 300 },
+                        style: { 
+                            borderRadius: '10pt', 
+                            backgroundColor: 'white', 
+                            fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem', 
+                            fontWeight: 300
+                        },
                         disableUnderline: true,
                     }}
-                    InputLabelProps={{ shrink: false, style: { fontSize: '1.5rem' } }}
+                    InputLabelProps={{ shrink: false, style: { fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem' } }}
                     sx={{
                         '& .MuiOutlinedInput-root': {
                             backgroundColor: 'none'
@@ -239,7 +286,7 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                         'USD',
                         'EUR'
                     ]}
-                    sx={{ paddingLeft: 5, width: '15vw' }}
+                    sx={{ paddingLeft: isTabletOrMobile ? 3 : 5, width: isTabletOrMobile ? '50vw' : '15vw' }}
                     onChange={(_, value) => { setCurrency(value.toString()); }}
                     defaultValue={editableBook ? currency : undefined}
                     renderInput={(params) => (
@@ -249,7 +296,7 @@ export default function AddBookDialog({ key, isOpen, handleClose, saveBook, edit
                             variant='standard'
                             InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: '1.5rem', fontWeight: 300 },
+                                style: { fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem', fontWeight: 300 },
                                 disableUnderline: true
                             }}
                             sx={{

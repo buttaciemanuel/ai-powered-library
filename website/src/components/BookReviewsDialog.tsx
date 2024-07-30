@@ -18,6 +18,7 @@ import { Book } from './AddBookDialog';
 import CloseIcon from '@mui/icons-material/Close';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import BookReviewCard from './BookReviewCard';
+import { useMediaQuery } from 'react-responsive';
 
 export interface BookReview {
     email: string;
@@ -37,6 +38,8 @@ interface BookReviewsDialogProps {
 }
 
 export default function BookReviewsDialog({ key, isOpen, book, handleClose, getReviews, submitReview, reviewedByCurrentUser }: BookReviewsDialogProps) {
+    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+    
     const [bookReviews, setBookReviews] = React.useState<undefined | BookReview[]>(undefined);
 
     const [nStars, setNStars] = React.useState<number>(0);
@@ -85,7 +88,7 @@ export default function BookReviewsDialog({ key, isOpen, book, handleClose, getR
                 {
                     !reviewedByCurrentUser && submitReview !== undefined ?
                         <Button
-                            size='large'
+                            size={isTabletOrMobile ? 'medium' : 'large'}
                             color='primary'
                             disabled={reviewedByCurrentUser}
                             disableElevation
@@ -104,15 +107,15 @@ export default function BookReviewsDialog({ key, isOpen, book, handleClose, getR
                 }
             </Toolbar>
 
-            <Typography fontSize='3rem' fontWeight={700}>
+            <Typography fontSize={isTabletOrMobile ? '1.75rem' : '3rem'} fontWeight={700}>
                 {book.title}
             </Typography>
 
-            <Typography variant='body1' paddingTop={5} color='text.secondary' fontWeight={300} gutterBottom>
+            <Typography variant={isTabletOrMobile ? 'body2' : 'body1'} paddingTop={5} color='text.secondary' fontWeight={300} gutterBottom>
                 Author
             </Typography>
 
-            <Typography fontSize='1.5rem' fontWeight={300} gutterBottom paddingBottom={3}>
+            <Typography fontSize={isTabletOrMobile ? '1.1rem' : '1.5rem'} fontWeight={300} gutterBottom paddingBottom={3}>
                 {book.author}
             </Typography>
 
@@ -120,9 +123,8 @@ export default function BookReviewsDialog({ key, isOpen, book, handleClose, getR
             {reviewedByCurrentUser ?
                 <></> :
                 <>
-                    <Divider />
 
-                    <Typography variant='body1' paddingTop={4} color='text.secondary' fontWeight={300} gutterBottom>
+                    <Typography variant={isTabletOrMobile ? 'body2' : 'body1'} color='text.secondary' fontWeight={300} gutterBottom>
                         Your rating
                     </Typography>
 
@@ -135,7 +137,7 @@ export default function BookReviewsDialog({ key, isOpen, book, handleClose, getR
                         }}
                     />
 
-                    <Typography variant='body1' paddingTop={3} color='text.secondary' fontWeight={300} gutterBottom>
+                    <Typography variant={isTabletOrMobile ? 'body2' : 'body1'} paddingTop={3} color='text.secondary' fontWeight={300} gutterBottom>
                         Your comment on the book
                     </Typography>
 
@@ -148,10 +150,10 @@ export default function BookReviewsDialog({ key, isOpen, book, handleClose, getR
                         maxRows={4}
                         autoComplete='off'
                         InputProps={{
-                            style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: '1.5rem', fontWeight: 300 },
+                            style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem', fontWeight: 300 },
                             disableUnderline: true,
                         }}
-                        InputLabelProps={{ shrink: false, style: { fontSize: '1.5rem' } }}
+                        InputLabelProps={{ shrink: false, style: { fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem' } }}
                         sx={{
                             '& .MuiOutlinedInput-root': {
                                 backgroundColor: 'none'
@@ -165,9 +167,7 @@ export default function BookReviewsDialog({ key, isOpen, book, handleClose, getR
                 </>
             }
 
-            <Divider />
-
-            <Typography variant='body1' paddingTop={4} paddingBottom={1} color='text.secondary' fontWeight={300} gutterBottom>
+            <Typography variant={isTabletOrMobile ? 'body2' : 'body1'} paddingBottom={1} color='text.secondary' fontWeight={300} gutterBottom>
                 {reviewedByCurrentUser ? 'Reviews' : 'Other reviews'}
             </Typography>
 
@@ -186,8 +186,8 @@ export default function BookReviewsDialog({ key, isOpen, book, handleClose, getR
                             />;
                         })
                         :
-                        <Typography variant='h5' fontWeight={300} paddingBottom={5}>
-                            You might be the first one to review this book!
+                        <Typography fontSize={isTabletOrMobile ? '1.1rem' : '1.5rem'} fontWeight={300} paddingBottom={5}>
+                            You might be the first to review this book!
                         </Typography>
             }
         </Container>
