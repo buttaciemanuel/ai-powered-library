@@ -13,6 +13,7 @@ import React from 'react';
 
 import CloseIcon from '@mui/icons-material/Close';
 import DoneIcon from '@mui/icons-material/Done';
+import { useMediaQuery } from 'react-responsive';
 
 export interface UserRecommendationInformation {
     readingGoal: string;
@@ -28,6 +29,8 @@ interface TellMeMoreAboutYourselfDialogProps {
 }
 
 export default function TellMeMoreAboutYourselfDialog({ key, isOpen, saveInfo, handleClose }: TellMeMoreAboutYourselfDialogProps) {
+    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+    
     const [goal, setGoal] = React.useState<string>('');
     const [mood, setMood] = React.useState<string>('');
     const [description, setDescription] = React.useState<string>('');
@@ -62,7 +65,7 @@ export default function TellMeMoreAboutYourselfDialog({ key, isOpen, saveInfo, h
                 <Box sx={{ flexGrow: 1 }} />
 
                 <Button
-                    size='large'
+                    size={isTabletOrMobile ? 'small' : 'large'}
                     disableElevation
                     startIcon={<DoneIcon />}
                     sx={{ borderRadius: '8pt' }}
@@ -83,15 +86,15 @@ export default function TellMeMoreAboutYourselfDialog({ key, isOpen, saveInfo, h
                 </Button>
             </Toolbar>
 
-            <Typography fontSize='4rem' fontWeight={700} paddingBottom={2}>
-                Tell me more about yourself
+            <Typography fontSize={isTabletOrMobile ? '1.75rem' : '3rem'}  fontWeight={700} paddingBottom={2}>
+                Tell me more {isTabletOrMobile ? '' : 'about yourself'}
             </Typography>
 
-            <Typography variant='h5' fontWeight={300} paddingBottom={5}>
+            <Typography variant={isTabletOrMobile ? 'body1' : 'h5'} fontWeight={300} paddingBottom={5}>
                 I will use this information to provide you with helpful recommendations about the books you visualize.
             </Typography>
 
-            <Typography variant='body1' paddingTop={5} color='text.secondary' fontWeight={300} gutterBottom>
+            <Typography variant={isTabletOrMobile ? 'body2' : 'body1'} paddingTop={5} color='text.secondary' fontWeight={300} gutterBottom>
                 Your goal
             </Typography>
 
@@ -102,10 +105,10 @@ export default function TellMeMoreAboutYourselfDialog({ key, isOpen, saveInfo, h
                 fullWidth
                 autoComplete='off'
                 InputProps={{
-                    style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: '2rem', fontWeight: 300 },
+                    style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: isTabletOrMobile ? '1.25rem' : '2rem', fontWeight: 300 },
                     disableUnderline: true,
                 }}
-                InputLabelProps={{ shrink: false, style: { fontSize: '2rem' } }}
+                InputLabelProps={{ shrink: false, style: { fontSize: isTabletOrMobile ? '1.25rem' : '2rem' } }}
                 sx={{
                     '& .MuiOutlinedInput-root': {
                         backgroundColor: 'none'
@@ -116,7 +119,7 @@ export default function TellMeMoreAboutYourselfDialog({ key, isOpen, saveInfo, h
                 value={goal}
             />
 
-            <Typography variant='body1' paddingTop={3} color='text.secondary' fontWeight={300} gutterBottom>
+            <Typography variant={isTabletOrMobile ? 'body2' : 'body1'} paddingTop={3} color='text.secondary' fontWeight={300} gutterBottom>
                 A detailed description of your objective
             </Typography>
 
@@ -127,10 +130,10 @@ export default function TellMeMoreAboutYourselfDialog({ key, isOpen, saveInfo, h
                 fullWidth
                 autoComplete='off'
                 InputProps={{
-                    style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: '1.5rem', fontWeight: 300 },
+                    style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem', fontWeight: 300 },
                     disableUnderline: true,
                 }}
-                InputLabelProps={{ shrink: false, style: { fontSize: '1.5rem' } }}
+                InputLabelProps={{ shrink: false, style: { fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem' } }}
                 sx={{
                     '& .MuiOutlinedInput-root': {
                         backgroundColor: 'none'
@@ -141,7 +144,7 @@ export default function TellMeMoreAboutYourselfDialog({ key, isOpen, saveInfo, h
                 value={description}
             />
 
-            <Typography variant='body1' paddingTop={3} color='text.secondary' fontWeight={300} gutterBottom>
+            <Typography variant={isTabletOrMobile ? 'body2' : 'body1'} paddingTop={3} color='text.secondary' fontWeight={300} gutterBottom>
                 Your mood
             </Typography>
 
@@ -152,10 +155,10 @@ export default function TellMeMoreAboutYourselfDialog({ key, isOpen, saveInfo, h
                 fullWidth
                 autoComplete='off'
                 InputProps={{
-                    style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: '1.5rem', fontWeight: 300 },
+                    style: { borderRadius: '10pt', backgroundColor: 'white', fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem', fontWeight: 300 },
                     disableUnderline: true,
                 }}
-                InputLabelProps={{ shrink: false, style: { fontSize: '1.5rem' } }}
+                InputLabelProps={{ shrink: false, style: { fontSize: isTabletOrMobile ? '1.1rem' : '1.5rem' } }}
                 sx={{
                     '& .MuiOutlinedInput-root': {
                         backgroundColor: 'none'

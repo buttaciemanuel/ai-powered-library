@@ -9,6 +9,7 @@ import {
 
 import CloseIcon from '@mui/icons-material/Close';
 import DoneIcon from '@mui/icons-material/Done';
+import { useMediaQuery } from 'react-responsive';
 
 interface CookieDialogPropos {
     isOpen: boolean;
@@ -18,6 +19,8 @@ interface CookieDialogPropos {
 }
 
 export default function CookieDialog({ isOpen, acceptCookies, refuseCookies, handleClose }: CookieDialogPropos) {
+    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+    
     return <Drawer
         anchor='bottom'
         open={isOpen}
@@ -44,7 +47,7 @@ export default function CookieDialog({ isOpen, acceptCookies, refuseCookies, han
                 <Box sx={{ flexGrow: 1 }} />
 
                 <Button
-                    size='large'
+                    size={isTabletOrMobile ? 'medium' : 'large'}
                     disableElevation
                     startIcon={<CloseIcon />}
                     sx={{ borderRadius: '8pt', marginRight: 3 }}
@@ -55,7 +58,7 @@ export default function CookieDialog({ isOpen, acceptCookies, refuseCookies, han
                 </Button>
 
                 <Button
-                    size='large'
+                    size={isTabletOrMobile ? 'medium' : 'large'}
                     disableElevation
                     startIcon={<DoneIcon />}
                     sx={{ borderRadius: '8pt' }}
