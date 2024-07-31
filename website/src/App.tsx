@@ -2,7 +2,7 @@ import { ThemeProvider } from '@mui/material';
 
 import './styles/App.css';
 
-import BooksPage from './components/BooksPage';
+import BooksPage from './pages/BooksPage';
 import { theme } from './themes/defaultTheme';
 
 function App() {

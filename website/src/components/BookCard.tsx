@@ -15,11 +15,11 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
 import ReviewsIcon from '@mui/icons-material/Reviews';
-import AddBookDialog, { Book } from './AddBookDialog';
-import DeleteBookConfimationDialog from './DeleteBookConfimationDialog';
-import BookSummaryDialog, { BookSummaryInformation } from './BookSummaryDialog';
-import BookReviewsDialog, { BookReview } from './BookReviewsDialog';
-import { UserAuthenticationSession } from './UserAuthenticateDialog';
+import AddBookDialog, { Book } from '../pages/AddBookDialog';
+import DeleteBookConfimationDialog from '../pages/DeleteBookConfimationDialog';
+import BookSummaryDialog, { BookSummaryInformation } from '../pages/BookSummaryDialog';
+import BookReviewsDialog, { BookReview } from '../pages/BookReviewsDialog';
+import { UserAuthenticationSession } from '../pages/UserAuthenticateDialog';
 import { useMediaQuery } from 'react-responsive';
 
 interface BookItemProps {
@@ -39,7 +39,7 @@ interface BookItemProps {
     reviewedByCurrentUser?: boolean;
 }
 
-export default function BookItem({ id, title, author, publicationYear, price, currency, genre, editBook, deleteBook, summarizeBook, getReviews, submitReview, currentUser, reviewedByCurrentUser }: BookItemProps) {
+export default function BookCard({ id, title, author, publicationYear, price, currency, genre, editBook, deleteBook, summarizeBook, getReviews, submitReview, currentUser, reviewedByCurrentUser }: BookItemProps) {
     const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
 
     const [editBookDialogOpen, setEditBookDialogOpen] = React.useState<boolean>(false);

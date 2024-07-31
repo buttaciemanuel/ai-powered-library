@@ -1,12 +1,12 @@
-import { Book } from "./AddBookDialog";
-import BookItem from "./BookItem";
+import { Book } from "../pages/AddBookDialog";
+import BookCard from "./BookCard";
 import { Box, Button, Skeleton, Typography } from "@mui/material";
 
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { BookSummaryInformation } from "./BookSummaryDialog";
-import { BookReview } from "./BookReviewsDialog";
-import { UserAuthenticationSession } from "./UserAuthenticateDialog";
+import { BookSummaryInformation } from "../pages/BookSummaryDialog";
+import { BookReview } from "../pages/BookReviewsDialog";
+import { UserAuthenticationSession } from "../pages/UserAuthenticateDialog";
 import { useMediaQuery } from "react-responsive";
 
 interface MultiplePagesCollectionProps {
@@ -94,7 +94,7 @@ export default function MultiplePagesCollection({
                 currentPage * itemsPerPage,
                 Math.min((currentPage + 1) * itemsPerPage, books.length)
             ).map(function (book) {
-                return <BookItem
+                return <BookCard
                     id={book.id}
                     title={book.title}
                     author={book.author}
